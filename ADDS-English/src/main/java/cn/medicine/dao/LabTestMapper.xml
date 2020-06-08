@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.LabTestMapper">
+    <resultMap type="cn.medicine.pojo.LabTest" id="PatientLabTest">
+        <id property="labid" column="labid"/>
+        <result property="labtest" column="labtest"/>
+        <result property="lab_attribute" column="lab_attribute"/>
+    </resultMap>
+    <select id="getpatientLabTest" resultMap="PatientLabTest">
+        SELECT * FROM labtest WHERE labid=#{labid}
+    </select>
+    <insert id="add" parameterType="cn.medicine.pojo.LabTest" useGeneratedKeys="true" keyProperty="labid">
+        INSERT INTO labtest (labid,labtest,lab_attribute) VALUES (DEFAULT,#{labtest},#{lab_attribute})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(labid) from labtest
+    </select>
+</mapper>

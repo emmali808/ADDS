@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.MyDataMapper">
+  <resultMap type="cn.medicine.pojo.MyData" id="resultListMyData">
+    <result column="name" property="name"/>
+    <result column="content" property="content"/>
+  </resultMap>
+  
+   <insert id="add" parameterType="cn.medicine.pojo.MyData"  keyProperty="name">
+     INSERT INTO mydata (name,content) VALUES (#{name},#{content})
+   </insert>
+   
+   <update id="update">
+     update mydata set content=#{content} where name=#{name}
+   </update>
+   
+   <select id="get" resultType="String">
+     select content from mydata where name=#{0}
+   </select>
+
+</mapper>

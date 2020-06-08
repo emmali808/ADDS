@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.DiagnoseMapper">
+    <resultMap type="cn.medicine.pojo.Diagnose" id="PatientDiagnose">
+        <id property="diagid" column="diagid"/>
+        <result property="diagnose" column="diagnose"/>
+    </resultMap>
+    <select id="getpatientDiagnose" resultMap="PatientDiagnose">
+        SELECT * FROM diagnose WHERE diagid=#{diagid}
+    </select>
+    <insert id="add" parameterType="cn.medicine.pojo.Diagnose" useGeneratedKeys="true" keyProperty="diagid">
+        INSERT INTO diagnose (diagid,diagnose) VALUES (DEFAULT,#{diagnose})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(diagid) from diagnose
+    </select>
+</mapper>

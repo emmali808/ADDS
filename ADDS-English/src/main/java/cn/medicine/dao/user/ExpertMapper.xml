@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.user.ExpertMapper">
+    <resultMap id="expert" type="cn.medicine.pojo.Expert">
+        <id column="Id" property="Id"/>
+        <result column="birthday" property="birthday"/>
+        <result column="marriage" property="marriage"/>
+        <result column="identityID" property="identityID"/>
+        <result column="nation" property="nation"/>
+        <result column="birth_place" property="birth_place"/>
+        <result column="work_place" property="work_place"/>
+        <result column="title" property="title"/>
+        <result column="education" property="education"/>
+        <result column="skill" property="skill"/>
+        <result column="introduction" property="introduction"/>
+
+    </resultMap>
+
+
+    <insert id="add" parameterType="cn.medicine.pojo.Expert" useGeneratedKeys="true" keyProperty="Id">
+    INSERT INTO expert (Id,birthday,marriage,nation,identityID,birth_place,work_place,title,skill,education,introduction)
+    VALUES (DEFAULT,#{birthday},#{marriage},#{nation},#{identityID},#{birth_place},#{work_place},#{title},#{skill},#{education},#{introduction})
+    </insert>
+    <update id="update" parameterType="cn.medicine.pojo.Expert">
+        UPDATE expert
+        SET birthday=#{birthday},marriage=#{marriage},nation=#{nation},
+        birth_place=#{birth_place},work_place=#{work_place}, title=#{title},
+        skill=#{skill},education=#{education},introduction=#{introduction}
+        WHERE identityID=#{identityID}
+
+    </update>
+    <delete id="delete" parameterType="String">
+        DELETE FROM expert WHERE identityID=#{0}
+    </delete>
+    <select id="getByIdentityID" parameterType="String" resultMap="expert">
+        SELECT * FROM expert WHERE identityID=#{0}
+    </select>
+
+
+
+</mapper>

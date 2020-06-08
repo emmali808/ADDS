@@ -1,0 +1,19 @@
+.ques-row {
+   display: flex;
+    justify-content: space-between;
+}
+.ques-row .ques-col {
+    width:100px ;
+}
+.ques-result {
+    width: 0;
+    height: 0;
+    transition: height 0.5s ease;
+}
+.show-result {
+    width: 100% !important;
+    height: 400px !important;
+}
+.doc-add-clinic tr>td:first-child{
+    width: 150px !important;
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.TreatmentMapper">
+<resultMap type="cn.medicine.pojo.Treatment" id="PatientTreatment">
+    <id property="treatid" column="treatid"/>
+    <result property="treatment" column="treatment"/>
+    <result property="t_attribute" column="t_attribute"/>
+</resultMap>
+<select id="getpatientTreatment" resultMap="PatientTreatment">
+    SELECT * FROM treatment WHERE treatid=#{treatid}
+</select>
+    <insert id="add" parameterType="cn.medicine.pojo.Treatment" useGeneratedKeys="true" keyProperty="treatid">
+        INSERT INTO treatment (treatid,treatment,t_attribute) VALUES (DEFAULT,#{treatment},#{t_attribute})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(treatid) from treatment
+    </select>
+</mapper>
