@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.user.PatientMapper">
+    <resultMap id="patient" type="cn.medicine.pojo.Patient">
+        <id column="uid" property="uid"/>
+        <result column="birthday" property="birthday"/>
+        <result column="marriage" property="marriage"/>
+        <result column="identityID" property="identityID"/>
+        <result column="nation" property="nation"/>
+        <result column="birth_place" property="birth_place"/>
+        <result column="work_place" property="work_place"/>
+        <result column="contact_person" property="contact_person"/>
+        <result column="contact_relationship" property="contact_relationship"/>
+        <result column="contact_phone" property="contact_phone"/>
+        <result column="contact_address" property="contact_address"/>
+        <result column="category" property="category"/>
+        <result column="medicare_card_id" property="medicare_card_id"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="cn.medicine.pojo.Patient" useGeneratedKeys="true" keyProperty="Id">
+        INSERT INTO patient (Id,identityID,marriage,birthday,nation,birth_place,work_place,category) VALUES (DEFAULT,#{identityID},#{marriage},#{birthday},#{nation},#{birth_place},#{work_place},#{category})
+    </insert>
+    <update id="update" parameterType="cn.medicine.pojo.Patient">
+        UPDATE patient
+        SET birthday=#{birthday},marriage=#{marriage},nation=#{nation},
+        birth_place=#{birth_place},work_place=#{work_place},contact_person=#{contact_person},
+        contact_relationship=#{contact_relationship},contact_phone=#{contact_phone},contact_address=#{contact_address},
+        category=#{category},medicare_card_id=#{medicare_card_id}
+        WHERE identityID=#{identityID}
+    </update>
+    <delete id="delete" parameterType="String">
+        DELETE FROM patient WHERE identityID=#{0}
+    </delete>
+    <select id="getByIdentityID" parameterType="String" resultMap="patient">
+        SELECT * FROM patient WHERE identityID=#{0}
+    </select>
+
+
+
+</mapper>

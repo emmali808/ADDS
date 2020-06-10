@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.QuestionResultMapper">
+  <resultMap type="cn.medicine.pojo.QuestionResult" id="resultListQuestionResult">
+    <id column="qrid" property="qrid"/>
+    <result column="questionid" property="questionid"/>
+    <result column="userid" property="userid"/>
+    <result column="resultType" property="resultType"/>
+    <result column="detailedAnswer" property="detailedAnswer"/>
+    <result column="remark" property="remark"/>
+  </resultMap>
+  <resultMap type="cn.medicine.pojo.QuestionAndResult" id="resultListQuestionAndResult">
+    <id column="qrid" property="qrid"/>
+    <result column="qid" property="qid"/>
+    <result column="resultType" property="resultType"/>
+    <result column="detailedAnswer" property="detailedAnswer"/>
+    <result column="content" property="content"/>
+  </resultMap>
+  
+  <insert id="add" parameterType="cn.medicine.pojo.QuestionResult" useGeneratedKeys="true" keyProperty="qid">
+    INSERT INTO questionresult (qrid,questionid,userid,resultType,detailedAnswer,remark) VALUES (DEFAULT,#{questionid},#{userid},#{resultType},#{detailedAnswer},#{remark})
+  </insert>
+  
+  <delete id="delete">
+    DELETE FROM questionresult WHERE qrid=#{0}
+  </delete>
+  
+  <select id="getByUserid" resultMap="resultListQuestionResult">
+    select * from questionresult where userid=#{0}
+  </select>
+  
+  <select id="getByQuestionid" resultMap="resultListQuestionResult">
+    select * from questionresult where questionid=#{0}
+  </select>
+  
+  <select id="getQuestionAndResultByUserid" resultMap="resultListQuestionAndResult">
+    select qr.qrid,q.qid,qr.resultType,qr.detailedAnswer,q.content from questionresult qr,question q where qr.userid=#{0} and qr.questionid=q.qid
+  </select>
+
+</mapper>

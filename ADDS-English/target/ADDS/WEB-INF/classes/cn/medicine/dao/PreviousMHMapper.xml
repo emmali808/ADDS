@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.PreviousMHMapper">
+    <resultMap type="cn.medicine.pojo.PreviousMH" id="PatientPreviousMH">
+        <id property="preid" column="preid"/>
+        <result property="previousMH" column="previousMH"/>
+        <result property="pre_attribute" column="pre_attribute"></result>
+    </resultMap>
+    <select id="getpatientPreviousMH" resultMap="PatientPreviousMH">
+        SELECT * FROM previousmh WHERE preid=#{preid}
+    </select>
+    <insert id="add" parameterType="cn.medicine.pojo.PreviousMH" useGeneratedKeys="true" keyProperty="preid">
+        INSERT INTO previousmh (preid,previousMH,pre_attribute) VALUES (DEFAULT,#{previousMH},#{pre_attribute})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(preid) from previousmh
+    </select>
+
+</mapper>

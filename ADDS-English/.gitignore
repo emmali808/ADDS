@@ -2,45 +2,44 @@
 src/main/resources/jdbc.properties
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-pom.xml
+#.classpath
+#.factorypath
+#.project
+#.settings
+#.springBeans
+#.sts4-cache
+#pom.xml
 # Built application files and Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
+#target/
+#pom.xml.tag
+#pom.xml.releaseBackup
+#pom.xml.versionsBackup
+#pom.xml.next
+#release.properties
+#dependency-reduced-pom.xml
+#buildNumber.properties
+#.mvn/timing.properties
  
 # Compiled class files
-*.class
+#*.class
  
 # Log Files
-*.log
+#*.log
  
 # About IntelliJ
-*.iml
-/.idea/
-/out/
-*.properties
+#*.iml
+#/.idea/
+#/out/
+#*.properties
  
 # BlueJ files
-*.ctxt
+#*.ctxt
  
 # Mobile Tools for Java (J2ME)
-.mtj.tmp/
+#.mtj.tmp/
  
 # macOS
-.DS_Store
+#.DS_Store
  
 # Package Files
 *.jar
@@ -57,7 +56,7 @@ cmake-build-debug/
 *.iws
  
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+#.idea_modules/
  
 # JIRA plugin
 atlassian-ide-plugin.xml

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.MessageMapper">
+  <resultMap type="cn.medicine.pojo.MessageTemp" id="resultListMessage">
+    <id column="id" property="id"/>
+    <result column="fromid" property="from"/>
+    <result column="fromName" property="fromName"/>
+    <result column="toid" property="to"/>
+    <result column="text" property="text"/>
+    <result column="datetext" property="datetext"/>
+  </resultMap>
+  
+  <insert id="add" parameterType="cn.medicine.pojo.MessageTemp" useGeneratedKeys="true" keyProperty="id">
+     INSERT INTO message (id,fromid,fromName,toid,text,datetext) VALUES (DEFAULT,#{from},#{fromName},#{to},#{text},#{datetext})
+  </insert>
+  <!-- <insert id="add" parameterType="cn.medicine.pojo.Message" useGeneratedKeys="true" keyProperty="id">
+     INSERT INTO message (id,fromid,fromName,toid,text,datetext) VALUES (DEFAULT,#{from},#{fromName},#{to},#{text},#{datetext})
+  </insert> -->
+  
+  <select id="get" resultMap="resultListMessage">
+    select * from message where id=#{0}
+  </select>
+  
+  <select id="getByFromandTo" resultMap="resultListMessage">
+    select * from message where fromid=#{from} and toid=#{to}
+  </select>
+
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.RecordMapper">
+    <resultMap id="clinicRecordList" type="cn.medicine.pojo.ClinicRecord">
+        <id column="Id" property="Id"/>
+        <result column="clinic_record_Id" property="clinic_record_Id"/>
+        <result column="time" property="time"/>
+        <result column="patient_ID" property="patient_ID"/>
+        <result column="doctor_ID" property="doctor_ID"/>
+        <result column="patient_name" property="patient_name"/>
+        <result column="doctor_name" property="doctor_name"/>
+        <result column="content" property="content"/>
+        <result column="present_illness" property="present_illness"/>
+        <result column="medical_history" property="medical_history"/>
+        <result column="examination" property="examination"/>
+        <result column="inspection" property="inspection"/>
+        <result column="prescription" property="prescription"/>
+        <result column="type" property="type"/>
+    </resultMap>
+    <resultMap id="basicBodyRecordList" type="cn.medicine.pojo.BasicBodyRecord">
+        <id column="Id" property="Id"/>
+        <result column="identityID" property="identityID"/>
+        <result column="time" property="time"/>
+        <result column="pulse" property="pulse"/>
+        <result column="defection_frequency" property="defection_frequency"/>
+        <result column="urine_volume" property="urine_volume"/>
+        <result column="oral" property="oral"/>
+        <result column="rectal" property="rectal"/>
+        <result column="axillary" property="axillary"/>
+        <result column="hypothermia" property="hypothermia"/>
+        <result column="heart_rate" property="heart_rate"/>
+        <result column="weight" property="weight"/>
+        <result column="height" property="height"/>
+        <result column="blood_pressure_low" property="blood_pressure_low"/>
+        <result column="blood_pressure_high" property="blood_pressure_high"/>
+        <result column="blood_glucose" property="blood_glucose"/>
+    </resultMap>
+    <resultMap id="hospitalIn" type="cn.medicine.pojo.HospitalIn">
+        <id column="Id" property="Id"/>
+        <result column="time" property="time"/>
+        <result column="patient_name" property="patient_name"/>
+        <result column="patient_ID" property="patient_ID"/>
+        <result column="doctor_ID" property="doctor_ID"/>
+        <result column="doctor_name" property="doctor_name"/>
+        <result column="causes" property="causes"/>
+        <result column="course" property="course"/>
+        <result column="physical_examination" property="physical_examination"/>
+        <result column="medical_history" property="medical_history"/>
+        <result column="assistant_examination" property="assistant_examination"/>
+        <result column="preliminary_diagnosis" property="preliminary_diagnosis"/>
+        <result column="diagnostic_basis" property="diagnostic_basis"/>
+        <result column="differential_diagnosis" property="differential_diagnosis"/>
+        <result column="assessment_plan" property="assessment_plan"/>
+    </resultMap>
+
+    <resultMap id="hospitalCheck" type="cn.medicine.pojo.HospitalCheck">
+        <id column="Id" property="Id"/>
+        <result column="time" property="time"/>
+        <result column="patient_name" property="patient_name"/>
+        <result column="patient_ID" property="patient_ID"/>
+        <result column="doctor_ID" property="doctor_ID"/>
+        <result column="doctor_name" property="doctor_name"/>
+        <result column="record_doctor_ID" property="record_doctor_ID"/>
+        <result column="record_doctor_name" property="record_doctor_name"/>
+        <result column="symptoms" property="symptoms"/>
+        <result column="physical_examination" property="physical_examination"/>
+        <result column="assistant_examination" property="assistant_examination"/>
+        <result column="diagnosis" property="diagnosis"/>
+    </resultMap>
+    <resultMap id="hospitalOut" type="cn.medicine.pojo.HospitalOut">
+        <id column="Id" property="Id"/>
+        <result column="time_in" property="time_in"/>
+        <result column="time_out" property="time_out"/>
+        <result column="patient_name" property="patient_name"/>
+        <result column="patient_ID" property="patient_ID"/>
+        <result column="doctor_ID" property="doctor_ID"/>
+        <result column="doctor_name" property="doctor_name"/>
+        <result column="record_doctor_ID" property="record_doctor_ID"/>
+        <result column="record_doctor_name" property="record_doctor_name"/>
+        <result column="treatment_procedure" property="treatment_procedure"/>
+        <result column="admission_diagnosis" property="admission_diagnosis"/>
+        <result column="discharge_diagnosis" property="discharge_diagnosis"/>
+        <result column="medical_advice" property="medical_advice"/>
+
+    </resultMap>
+
+    <select id="getClinicRecord" parameterType="String" resultMap="clinicRecordList">
+        SELECT * FROM clinic_record WHERE patient_ID=#{0} order by clinic_record_Id
+    </select>
+    <select id="getClinicRecordByDoctor" parameterType="String" resultMap="clinicRecordList">
+        select * from clinic_record where doctor_ID=#{0} order by clinic_record_Id
+    </select>
+    <select id="getBasicBodyRecordList" parameterType="String" resultMap="basicBodyRecordList">
+        SELECT * FROM basic_body_record WHERE identityID=#{0} order  by time
+    </select>
+
+    <select id="getHospitalIn" parameterType="String" resultMap="hospitalIn">
+        SELECT * FROM hospital_in WHERE patient_ID=#{0} order by time
+    </select>
+    <select id="getHospitalInByDoctor" parameterType="String" resultMap="hospitalIn">
+        select * from hospital_in where doctor_ID=#{0} order by time
+    </select>
+
+    <select id="getHospitalCheck" parameterType="String" resultMap="hospitalCheck">
+        SELECT * FROM hospital_check WHERE patient_ID=#{0} order  by time
+    </select>
+    <select id="getHospitalCheckByDoctor" parameterType="String" resultMap="hospitalCheck">
+        select * from hospital_check where doctor_ID=#{0} order by time
+    </select>
+    <select id="getHospitalOut" parameterType="String" resultMap="hospitalOut">
+        SELECT * FROM hospital_out WHERE patient_ID=#{0} order  by time_out
+    </select>
+    <select id="getHospitalOutByDoctor" parameterType="String" resultMap="hospitalOut">
+       select * from hospital_out where doctor_ID=#{0} order by time_out
+    </select>
+
+    <insert id="addBasicBodyRecord" parameterType="cn.medicine.pojo.BasicBodyRecord" useGeneratedKeys="true" keyProperty="Id">
+        INSERT INTO basic_body_record (Id,identityID,time,pulse,defection_frequency,urine_volume,oral,rectal,axillary,hypothermia,heart_rate,weight,height,blood_pressure_low,blood_pressure_high,blood_glucose)
+        VALUES (DEFAULT,#{identityID},#{time},#{pulse},#{defection_frequency},#{urine_volume},#{oral},#{rectal},#{axillary},#{hypothermia},#{heart_rate},#{weight},#{height},#{blood_pressure_low},#{blood_pressure_high},#{blood_glucose})
+    </insert>
+    <insert id="addClinicRecord" parameterType="cn.medicine.pojo.ClinicRecord" useGeneratedKeys="true" keyProperty="Id">
+        INSERT INTO clinic_record (Id,time,patient_ID,patient_name,doctor_ID,doctor_name,content,present_illness,medical_history,examination,inspection,prescription,type)
+        VALUES (DEFAULT,#{time},#{patient_ID},#{patient_name},#{doctor_ID},#{doctor_name},#{content},#{present_illness},#{medical_history},#{examination},#{inspection},#{prescription},#{type})
+    </insert>
+    <insert id="addHospitalIn" parameterType="cn.medicine.pojo.HospitalIn" useGeneratedKeys="true" keyProperty="Id">
+        INSERT INTO hospital_in (Id,time,patient_name,patient_ID,doctor_ID,doctor_name,causes,course,symptoms,physical_examination,medical_history,assistant_examination,preliminary_diagnosis,diagnostic_basis,differential_diagnosis, assessment_plan)
+        VALUE (DEFAULT,#{time},#{patient_name},#{patient_ID},#{doctor_ID},#{doctor_name},#{causes},#{course},#{symptoms},#{physical_examination},#{medical_history},#{assistant_examination},#{preliminary_diagnosis},#{diagnostic_basis},#{differential_diagnosis},#{ assessment_plan})
+    </insert>
+    <insert id="addHospitalCheck" parameterType="cn.medicine.pojo.HospitalCheck" useGeneratedKeys="true" keyProperty="Id">
+    INSERT INTO hospital_check (Id, time,patient_ID,patient_name,doctor_ID,doctor_name,record_doctor_ID,record_doctor_name,symptoms,physical_examination,assistant_examination, diagnosis)
+     VALUE (DEFAULT, #{time},#{patient_ID},#{patient_name},#{doctor_ID},#{doctor_name},#{record_doctor_ID},#{record_doctor_name},#{symptoms},#{physical_examination},#{assistant_examination},#{diagnosis})
+    </insert>
+    <insert id="addHospitalOut" parameterType="cn.medicine.pojo.HospitalOut" useGeneratedKeys="true" keyProperty="Id">
+        INSERT INTO hospital_out (Id,time_in,time_out,patient_ID,patient_name,doctor_ID,doctor_name,record_doctor_ID,record_doctor_name,treatment_procedure,admission_diagnosis,discharge_diagnosis, medical_advice)
+        VALUE (DEFAULT,#{time_in},#{time_out},#{patient_ID},#{patient_name},#{doctor_ID},#{doctor_name},#{record_doctor_ID},#{record_doctor_name},#{treatment_procedure},#{admission_diagnosis},#{discharge_diagnosis},#{ medical_advice})
+    </insert>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.SymptomsMapper">
+    <resultMap type="cn.medicine.pojo.Symptoms" id="PatientSymptom">
+        <id property="symid" column="symid"/>
+        <result property="symptoms" column="symptoms"/>
+        <result property="s_attribute" column="s_attribute"/>
+    </resultMap>
+    <select id="getpatientSymptoms" resultMap="PatientSymptom">
+        SELECT * FROM symptoms WHERE symid=#{symid}
+    </select>
+    <insert id="add" parameterType="cn.medicine.pojo.Symptoms" useGeneratedKeys="true" keyProperty="symid">
+        INSERT INTO symptoms (symid,symptoms,s_attribute) VALUES (DEFAULT,#{symptoms},#{s_attribute})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(symid) from symptoms
+    </select>
+</mapper>

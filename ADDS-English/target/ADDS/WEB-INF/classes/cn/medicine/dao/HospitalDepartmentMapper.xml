@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.HospitalDepartmentMapper">
+  <resultMap type="cn.medicine.pojo.HospitalDepartment" id="resultListHD">
+    <id column="hdid" property="hdid"/>
+    <result column="name" property="name"/>
+    <result column="description" property="description"/>
+    <result column="remark" property="remark"/>
+  </resultMap>
+  
+  
+  
+  
+  <insert id="add" parameterType="cn.medicine.pojo.HospitalDepartment" useGeneratedKeys="true" keyProperty="hdid">
+    INSERT INTO hospitaldepartment (hdid,name,description,remark) VALUES (DEFAULT,#{name},#{description},#{remark})
+  </insert>
+  
+  <update id="update" parameterType="cn.medicine.pojo.HospitalDepartment">
+    UPDATE hospitaldepartment
+    SET name=#{name},description=#{description},remark=#{remark}
+    WHERE hdid=#{hdid}
+  </update>
+  
+  <delete id="deleteByName" parameterType="String">
+    DELETE FROM hospitaldepartment WHERE name={0}
+  </delete>
+  
+  <select id="getByName" parameterType="String"  resultMap="resultListHD">
+    SELECT * from hospitaldepartment where name=#{0}
+  </select>
+  
+  <select id="getAll" resultMap="resultListHD">
+    select * from hospitaldepartment
+  </select>
+  
+  
+</mapper>

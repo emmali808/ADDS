@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.user.UserMapper">
+  <resultMap id="resultListUser" type="cn.medicine.pojo.User">
+      <id column="uid" property="uid"/>
+      <result column="username" property="username"/>
+      <result column="login_name" property="login_name"/>
+      <result column="password" property="password"/>
+       <result column="age" property="age"/>
+      <result column="gender" property="gender"/>
+      <result column="phone" property="phone"/>
+      <result column="type" property="type"/>
+      <result column="email" property="email"/>
+      <result column="identityID" property="identityID"/>
+      <result column="state" property="state"/>
+  </resultMap>
+  <select id="login" parameterType="String" resultMap="resultListUser">
+    SELECT * FROM sys_user WHERE login_name=#{0} AND password=#{1} AND state=1
+  </select>
+  
+  <select id="isDuplicate" resultType="Integer">
+    SELECT 1 FROM sys_user WHERE login_name=#{0} AND state=1
+  </select>
+  
+  <select id="getByUsername" parameterType="String" resultMap="resultListUser">
+    SELECT * FROM sys_user WHERE login_name=#{0} AND state=1
+  </select>
+    <select id="getAllUser"  resultMap="resultListUser">
+        SELECT * FROM sys_user where state=1
+    </select>
+    <select id="getAllDoctorNotPass"  resultMap="resultListUser">
+        SELECT * FROM sys_user where type=1 AND state=0
+    </select>
+    <select id="getAllUserByPage">
+       select * from sys_user where state=1 limit #{0},#{1}
+    </select>
+    <select id="getAllUserNumber">
+      SELECT count(*) FROM sys_user where state=1
+    </select>
+    <select id="getPatients"  resultMap="resultListUser">
+      select * from sys_user where type=2 and state=1
+    </select>
+    <select id="getDoctors"  resultMap="resultListUser">
+      select * from sys_user where type=1 and state=1
+    </select>
+    <select id="getExperts"  resultMap="resultListUser">
+      select * from sys_user where type=3 and state=1
+    </select>
+    
+  <insert id="add" parameterType="cn.medicine.pojo.User" useGeneratedKeys="true" keyProperty="uid">
+    INSERT INTO sys_user (uid,username,login_name,password,identityID,age,gender,phone,marriage,birthday,nation,birth_place,work_place,email,type,state)
+    VALUES (DEFAULT,#{username},#{login_name},#{password},#{identityID},#{age},#{gender},#{phone},#{marriage},#{birthday},#{nation},#{birth_place},#{work_place},#{email},#{type},#{state})
+  </insert>
+  
+   <delete id="delete" parameterType="long">
+        DELETE FROM sys_user WHERE uid=#{0}
+   </delete>
+    
+    <update id="update" parameterType="cn.medicine.pojo.User">
+        UPDATE sys_user
+        SET username=#{username},age=#{age},
+             gender=#{gender},phone=#{phone},type=#{type},
+             identityID=#{identityID},email=#{email}
+        WHERE uid=#{uid}
+    </update>
+    
+   <update id="updateState">
+        UPDATE sys_user SET state=#{1} WHERE uid=#{0}
+   </update>
+
+
+    <update id="getDoctorNotCheck" parameterType="String">
+       UPDATE sys_user SET state=1 WHERE login_name=#{0} AND type=1
+    </update>
+</mapper>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!-- 自动扫描 -->
+    <context:component-scan base-package="cn.medicine"/>
+    <context:annotation-config/>
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    
+    <!-- 引入配置文件 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="1" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>classpath:ADDS.properties</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+          destroy-method="close">
+        <property name="driverClassName" value="${mysql.driver}"/>
+        <property name="url" value="${mysql.url}"/>
+        <property name="username" value="${mysql.username}"/>
+        <property name="password" value="${mysql.password}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="${mysql.initialSize}"/>
+        <!-- 连接池最大数量 -->
+        <property name="maxActive" value="${mysql.maxActive}"/>
+        <!-- 最大空闲连接 -->
+        <property name="maxIdle" value="${mysql.maxIdle}"/>
+        <!-- 最小空闲连接-->
+        <property name="minIdle" value="${mysql.minIdle}"/>
+        <!-- 获取连接最大等待时间，以毫秒为单位  -->
+        <property name="maxWait" value="${mysql.maxWait}"/>
+        <!-- 连接被泄露时是否打印 -->
+        <property name="logAbandoned" value="true"></property>
+        <!-- 是否自动回收超时连接-->
+        <property name="removeAbandoned" value="true"></property>
+        <!-- 超时时间（以秒数为单位）-->
+        <property name="removeAbandonedTimeout" value="${mysql.removeAbandonedTimeout}"/>
+        <!-- 在空闲连接回收期线程运行期间休眠的时间值，以毫秒为单位-->
+        <property name="timeBetweenEvictionRunsMillis" value="${mysql.timeBetweenEvictionRunsMillis}"/>
+
+        <property name="minEvictableIdleTimeMillis" value="${mysql.minEvictableIdleTimeMillis}"/>
+        <!-- 在每次空闲连接回收器线程（如果有）运行时检查的连接数量-->
+        <property name="numTestsPerEvictionRun" value="${mysql.numTestsPerEvictionRun}"/>
+ 
+    </bean>
+    
+    <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 自动扫描mapping.xml文件 -->
+         <property name="mapperLocations" value="classpath:cn/medicine/dao/*.xml"/>
+         <property name="configLocation" value="classpath:setting.xml"/> 
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="sqlSessionFactory" />
+    </bean>
+
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.medicine.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+    
+    <!-- 工厂接口注入 -->
+    <bean id = "daoBuildFactory" class = "cn.medicine.factory.DaoBuildFactory"/>
+    <!-- 工厂接口注入结束-->
+    
+    <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.user.UserMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="userDao" factory-bean="daoBuildFactory" factory-method="getUserDao">
+        <constructor-arg name="userMapper" ref="userMapper"/>
+    </bean>
+
+    <bean id="patientMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.user.PatientMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="patientDao" factory-bean="daoBuildFactory" factory-method="getPatientDao">
+        <constructor-arg name="patientMapper" ref="patientMapper"/>
+    </bean>
+    <bean id="doctorMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.user.DoctorMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="doctorDao" factory-bean="daoBuildFactory" factory-method="getDoctorDao">
+        <constructor-arg name="doctorMapper" ref="doctorMapper"/>
+    </bean>
+
+    <bean id="expertMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.user.ExpertMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="expertDao" factory-bean="daoBuildFactory" factory-method="getExpertDao">
+        <constructor-arg name="expertMapper" ref="expertMapper"/>
+    </bean>
+    <bean id="recordMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.RecordMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="recordDao" factory-bean="daoBuildFactory" factory-method="getRecordDao">
+        <constructor-arg name="recordMapper" ref="recordMapper"/>
+    </bean>
+
+
+    <bean id="hospitalDepartmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.HospitalDepartmentMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="hospitalDepartmentDao" factory-bean="daoBuildFactory" factory-method="getHospitalDepartmentDao">
+        <constructor-arg name="hospitalDepartmentMapper" ref="hospitalDepartmentMapper"/>
+    </bean>
+    
+    <bean id="questionMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.QuestionMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="questionDao" factory-bean="daoBuildFactory" factory-method="getQuestionDao">
+        <constructor-arg name="questionMapper" ref="questionMapper"/>
+    </bean>
+    
+    <bean id="questionResultMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.QuestionResultMapper"></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean> 
+    <bean id="questionResultDao" factory-bean="daoBuildFactory" factory-method="getQuestionResultDao">
+        <constructor-arg name="questionResultMapper" ref="questionResultMapper"></constructor-arg>
+    </bean>
+    
+    <bean id="myDataMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.MyDataMapper"></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean> 
+    <bean id="myDataDao" factory-bean="daoBuildFactory" factory-method="getMyDataDao">
+        <constructor-arg name="myDataMapper" ref="myDataMapper"></constructor-arg>
+    </bean>
+    
+    <bean id="patientGraphMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.PatientGraphMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="pgDao" factory-bean="daoBuildFactory" factory-method="getpatientRecord">
+        <constructor-arg name="patientgraphMapper" ref="patientGraphMapper"></constructor-arg>
+    </bean>
+
+    <bean id="DiagnoseMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.DiagnoseMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="diagDao" factory-bean="daoBuildFactory" factory-method="getDiagnoseDao">
+        <constructor-arg name="diagnoseMapper" ref="DiagnoseMapper"></constructor-arg>
+    </bean>
+
+
+    <bean id="SymptomsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.SymptomsMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="symDao" factory-bean="daoBuildFactory" factory-method="getSymptomsDao">
+        <constructor-arg name="symptomsMapper" ref="SymptomsMapper"></constructor-arg>
+    </bean>
+
+    <bean id="PreviousMHMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.PreviousMHMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="preDao" factory-bean="daoBuildFactory" factory-method="getPreviousMHDao">
+        <constructor-arg name="previousMHMapper" ref="PreviousMHMapper"></constructor-arg>
+    </bean>
+
+    <bean id="TreatmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.TreatmentMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="treatDao" factory-bean="daoBuildFactory" factory-method="getTreatmentDao">
+        <constructor-arg name="treatmentMapper" ref="TreatmentMapper"></constructor-arg>
+    </bean>
+
+    <bean id="LabTestMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.LabTestMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="labDao" factory-bean="daoBuildFactory" factory-method="getLabTestDao">
+        <constructor-arg name="labTestMapper" ref="LabTestMapper"></constructor-arg>
+    </bean>
+
+    <bean id="messageMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.medicine.dao.MessageMapper" ></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" ></property>
+    </bean>
+
+    <bean id="messageDao" factory-bean="daoBuildFactory" factory-method="getMessageDao">
+        <constructor-arg name="messageMapper" ref="messageMapper"></constructor-arg>
+    </bean>
+
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->  
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+       <property name="dataSource" ref="dataSource"/>
+    </bean>
+</beans>

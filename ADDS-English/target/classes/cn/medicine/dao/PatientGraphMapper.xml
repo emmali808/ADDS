@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.PatientGraphMapper">
+    <resultMap type="cn.medicine.pojo.Graph" id="PatientGraph">
+        <id property="gid" column="gid"/>
+        <result property="g_time" column="g_time"/>
+        <result property="g_diagnose" column="g_diagnose"/>
+        <result property="g_symptom" column="g_symptom"/>
+        <result property="g_treatment" column="g_treatment"/>
+        <result property="g_previousMH" column="g_previousMH"/>
+        <result property="g_labtest" column="g_labtest"/>
+        <result property="pgID" column="pgID"/>
+    </resultMap>
+    <select id="getpatientRecord" resultMap="PatientGraph">
+        SELECT * FROM patient_graph WHERE pgID=#{pgID}
+        <if test="g_time !=null">
+            AND g_time=#{g_time}
+        </if>
+    </select>
+    <insert id="add" parameterType="cn.medicine.pojo.Graph" useGeneratedKeys="true" keyProperty="gid">
+        INSERT INTO patient_graph (gid,g_time,g_diagnose,g_symptom,g_treatment,g_previousMH,g_labtest,pgID) VALUES (DEFAULT,#{g_time},#{g_diagnose},#{g_symptom},#{g_treatment},#{g_previousMH},#{g_labtest},#{pgID})
+    </insert>
+    <select id="getMaxID" resultType="long">
+        select max(gid) from patient_graph
+    </select>
+    <select id="getpatientGraph" resultMap="PatientGraph"  parameterType="String">
+        SELECT * FROM patient_graph WHERE pgID=#{0}
+    </select>
+
+</mapper>

@@ -1,0 +1,28 @@
+.admin-row {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0px;
+}
+.admin-content {
+    width: 100%;
+    min-height: 400px;
+    padding-top: 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.t-title {
+    background: #f7f7f7;
+}
+.real-table tr:first-child {
+    border: none !important;
+}
+.real-table tr {
+    border-bottom: 1px solid rgb(233, 233 , 233);
+}
+.real-table td {
+    padding: 16px 8px !important;
+    word-break: break-all;
+    font-size: 12px !important;
+}

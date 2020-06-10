@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.medicine.dao.UmlMapper">
+    <resultMap type="cn.medicine.graph.entity.UmlEntity" id="UmlResultMap">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="getAllUmlEntity" parameterType="java.lang.Long" resultMap="UmlResultMap">
+      SELECT * FROM umls_entity limit 50
+    </select>
+
+    <select id="searchUmlEntity" parameterType="java.lang.Long" resultMap="UmlResultMap">
+      SELECT * FROM umls_entity WHERE id=#{0}
+    </select>
+
+    <select id="searchEquality" parameterType="java.lang.Long" resultType="java.lang.Long">
+      SELECT END_ID FROM umls_equality WHERE START_ID=#{0}
+    </select>
+
+    <select id="searchInverse_is_a" parameterType="java.lang.Long" resultType="java.lang.Long">
+      SELECT END_ID FROM umls_inverse_is_a WHERE START_ID=#{0}
+    </select>
+
+    <select id="searchIs_a" parameterType="java.lang.Long" resultType="java.lang.Long">
+      SELECT END_ID FROM umls_is_a WHERE START_ID=#{0}
+    </select>
+
+    <select id="searchRelated" parameterType="java.lang.Long" resultType="java.lang.Long">
+      SELECT END_ID FROM umls_related WHERE START_ID=#{0}
+    </select>
+
+</mapper>

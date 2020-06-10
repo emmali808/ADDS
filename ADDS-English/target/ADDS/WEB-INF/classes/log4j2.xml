@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF" monitorInterval="1800">
+	<Properties>
+		<Property name="log-path">../ADDS-logs</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout charset="UTF-8" pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+
+
+		<RollingRandomAccessFile name="FileOutput"
+								 fileName="${log-path}/ADDS.log" filePattern="${log-path}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout
+					pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy modulate="true" interval="24"/>
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="20" />
+		</RollingRandomAccessFile>
+
+
+
+	</Appenders>
+	<Loggers>
+		<!--OFF、FATAL、ERROR、WARN、INFO、DEBUG、TRACE、ALL-->
+		<!--要修改日志级别：修改此<Logger>的属性 level ;-->
+		<Logger name="cn.medicine" level="info" additivity="true">
+			<AppenderRef ref="FileOutput" />
+			<!-- <AppenderRef ref="Console" /> -->
+		</Logger>
+
+		<Root level="info">
+			<AppenderRef ref="Console" />
+		</Root>
+
+	</Loggers>
+</configuration>
