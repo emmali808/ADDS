@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.DeepModelCategoryMapper">
+    <resultMap id="deepModelCategory" type="com.java.adds.entity.DeepModelCategoryEntity">
+        <id column="id" property="id"/>
+        <result column="category" property="category"/>
+    </resultMap>
+
+<!--    <select id="getAllModelCategory" resultMap="deepModelCategory">-->
+<!--        select * from deep_model_category-->
+<!--    </select>-->
+
+</mapper>

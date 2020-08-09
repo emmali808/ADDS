@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.DataSetsMapper">
+    <resultMap id="DataSetsList" type="com.java.adds.entity.DataSetsEntity">
+        <id column="id" property="id"/>
+        <result column="dataset_name" property="dataset_name"/>
+        <result column="dataset_desc" property="dataset_desc"/>
+        <result column="user_id" property="user_id"/>
+        <result column="train_path" property="train_path"/>
+        <result column="train_name" property="train_name"/>
+        <result column="test_path" property="test_path"/>
+        <result column="test_name" property="test_name"/>
+        <result column="dev_path" property="dev_path"/>
+        <result column="dev_name" property="dev_name"/>
+    </resultMap>
+
+    <update id="uploadTrainDataSet">
+        update data_sets_upload set train_path=#{filePath},train_name=#{fileName} where id=#{dId} and user_id=#{uId}
+    </update>
+
+    <update id="uploadTestDataSet">
+        update data_sets_upload set test_path=#{filePath},test_name=#{fileName} where id=#{dId} and user_id=#{uId}
+    </update>
+
+    <update id="uploadDevDataSet">
+        update data_sets_upload set dev_path=#{filePath},dev_name=#{fileName} where id=#{dId} and user_id=#{uId}
+    </update>
+
+<!--    <insert id="newDataSet" useGeneratedKeys="true">-->
+<!--        insert into data_sets_upload (dataset_name, dataset_desc, user_id) values (#{name}, #{desc}, #{uId})-->
+<!--        <selectKey resultType="java.lang.Integer" keyColumn="id" keyProperty="id" order="AFTER">-->
+<!--            select  last_insert_id()-->
+<!--        </selectKey>-->
+<!--    </insert>-->
+    
+    <select id="getDataSets" resultMap="DataSetsList">
+        select * from data_sets_upload where user_id=#{uId};
+    </select>
+
+    <select id="getAvailableDataSets" resultMap="DataSetsList">
+        select * from data_sets_upload where user_id=#{uId} and train_name is not null and test_name is not null and dev_name is not null;
+    </select>
+
+    <select id="getDataSetsById" resultMap="DataSetsList">
+        select * from data_sets_upload where id=#{id}
+    </select>
+
+
+</mapper>

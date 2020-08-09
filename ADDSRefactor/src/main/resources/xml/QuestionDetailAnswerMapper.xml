@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.QuestionDetailAnswerMapper">
+    <resultMap id="QAAnswerList" type="com.java.adds.entity.DetailAnswerEntity">
+        <id column="qrid" property="qrid"/>
+        <result column="qid" property="questionid"/>
+        <result column="user_id" property="userid"/>
+        <result column="detail_answer" property="detailedAnswer"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="searchDetailAnswerById" resultMap="QAAnswerList">
+        select * from question_detail_answer where qid=#{qid} and (detail_answer is not null)
+    </select>
+
+    <insert id="insertDetailAnswer" useGeneratedKeys="true" keyProperty="qrid">
+        insert into question_detail_answer (qid,user_id,detail_answer,remark) values (#{qid},#{uid},#{answer},#{remark});
+    </insert>
+
+</mapper>

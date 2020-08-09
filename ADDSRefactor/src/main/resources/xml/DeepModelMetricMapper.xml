@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.DeepModelMetricMapper">
+    <resultMap id="deepModelMetricList" type="com.java.adds.entity.DeepModelMetricEntity">
+        <id column="id" property="id"/>
+        <result column="metric" property="metricName"/>
+    </resultMap>
+
+    <select id="getMetrics" resultMap="deepModelMetricList">
+        select * from deep_model_metric;
+    </select>
+
+</mapper>

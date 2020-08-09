@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.PatientMapper">
+    <resultMap id="patientList" type="com.java.adds.entity.PatientEntity">
+        <id column="Id" property="id"/>
+        <result column="birthday" property="birthday"/>
+        <result column="marriage" property="marriage"/>
+        <result column="nation" property="nation"/>
+        <result column="birth_place" property="birth_place"/>
+        <result column="work_place" property="work_place"/>
+        <result column="contact_person" property="contact_person"/>
+        <result column="contact_phone" property="contact_phone"/>
+        <result column="contact_relationship" property="contact_relationship"/>
+        <result column="contact_address" property="contact_address"/>
+        <result column="category" property="category"/>
+        <result column="medicare_card_id" property="medicare_card_id"/>
+        <result column="identityId" property="identityId"/>
+    </resultMap>
+
+    <select id="getAllPatients" resultMap="patientList">
+        select * from patient;
+    </select>
+
+</mapper>

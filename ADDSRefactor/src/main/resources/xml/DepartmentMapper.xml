@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.DepartmentMapper">
+    <resultMap id="DepartmentList" type="com.java.adds.entity.DepartmentEntity">
+        <id column="hdid" property="id"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="getAllDepartment" resultMap="DepartmentList">
+        select * from department
+    </select>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.UserMapper">
+    <resultMap id="userList" type="com.java.adds.entity.UserEntity">
+        <id column="uid" property="id"/>
+        <result column="login_name" property="login_name"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="age" property="age"/>
+        <result column="gender" property="gender"/>
+        <result column="phone" property="phone"/>
+        <result column="type" property="type"/>
+        <result column="state" property="state"/>
+        <result column="email" property="email"/>
+        <result column="identityId" property="identityId"/>
+        <result column="birthday" property="birthday"/>
+        <result column="nation" property="nation"/>
+        <result column="marriage" property="marriage"/>
+        <result column="birth_place" property="birth_place"/>
+        <result column="work_place" property="work_place"/>
+    </resultMap>
+
+    <select id="login" resultMap="userList">
+       select * from sys_user where login_name=#{loginName};
+    </select>
+
+    <insert id="userRegister" useGeneratedKeys="true" keyProperty="uid" parameterType="com.java.adds.entity.UserEntity">
+        insert into sys_user(login_name,username,password,age,gender,phone,type,state,email,identityId,birthday,nation,marriage,birth_place,work_place)
+        values (#{login_name},#{username},#{password},#{age},#{gender},#{phone},#{type},#{state},#{email},#{identityId},#{birthday},#{nation},#{marriage},#{birth_place},#{work_place})
+    </insert>
+
+    <select id="getAllUsers" resultMap="userList">
+        select * from sys_user;
+    </select>
+
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.KGMapper">
+    <resultMap id="KGList" type="com.java.adds.entity.KGEntity">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="kg_path" property="kg_path"/>
+        <result column="kg_name" property="kg_name"/>
+    </resultMap>
+
+    <insert id="uploadKG" useGeneratedKeys="true" keyProperty="id">
+        insert into kg_upload(user_id,kg_path,kg_name) values(#{uId},#{filePath},#{fileName})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select  last_insert_id()
+        </selectKey>
+    </insert>
+
+    <select id="getKGS" resultMap="KGList">
+        select * from kg_upload where user_id=#{uId}
+    </select>
+</mapper>

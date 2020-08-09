@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.QuestionMapper">
+    <resultMap id="QAList" type="com.java.adds.entity.QuestionEntity">
+        <id column="qid" property="qid"/>
+        <result column="content" property="content"/>
+        <result column="hospitalDepartmentId" property="hospitalDepartmentId"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <resultMap id="QATestList" type="com.java.adds.entity.QuestionEntity">
+        <id column="id" property="qid"/>
+        <result column="content" property="content"/>
+        <result column="hospitalDepartmentId" property="hospitalDepartmentId"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <insert id="addQuestion" useGeneratedKeys="true" keyProperty="qid" parameterType="com.java.adds.entity.QuestionEntity">
+        insert into question(content,hospitalDepartmentId,type,userid,remark)
+        values (#{content},#{hospitalDepartmentId},#{type},#{userid},#{remark})
+    </insert>
+
+    <select id="searchMyQuestion" resultMap="QAList">
+        select * from question where userid=#{uid}
+    </select>
+
+    <select id="getChoiceQuestionsNotAnswered" resultMap="QAList">
+        select * from question where type=1 and qid not in(select questionid from questionresult where userid=#{uid}) order by qid limit #{start}, #{limitRecord}
+    </select>
+
+    <select id="getDetailQuestionsNotAnswered" resultMap="QAList">
+        select * from question where type=2 and qid not in(select qid from question_detail_answer where user_id=#{uid}) order by qid limit #{start}, #{limitRecord}
+    </select>
+
+    <select id="getAllQuestionAnswered" resultMap="QAList">
+        select * from question where qid in(select questionid from questionresult where userid=#{uid})
+    </select>
+
+    <select id="getQuestionAnswered" resultMap="QAList">
+        select * from question where type=1 and qid in(select questionid from questionresult where userid=#{uid}) order by qid limit #{start}, #{limitRecord}
+    </select>
+
+    <select id="getDetailQuestionsAnswered" resultMap="QAList">
+        select * from question where type=2 and qid in(select qid from question_detail_answer where user_id=#{uid}) order by qid limit #{start}, #{limitRecord}
+    </select>
+
+    <delete id="deleteQuestion">
+        delete from question where qid=#{qid}
+    </delete>
+
+    <select id="getQuestionById" resultMap="QAList">
+        select * from question where qid=#{qid}
+    </select>
+
+    <select id="getQuestionsInHosDepartment" resultMap="QAList">
+        select * from question where hospitalDepartmentId=#{hdId};
+    </select>
+
+
+    <select id="getAllQuestion" resultMap="QAList">
+        select * from question
+    </select>
+    
+    <select id="getAllQuestionTest" resultMap="QATestList">
+        select * from question_test;
+    </select>
+</mapper>
