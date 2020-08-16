@@ -37,7 +37,7 @@
               </svg>
             </div>
           </div>
-          <div class="info-div">
+          <!-- <div class="info-div">
             <el-card>
               <div slot="header" class="">
                 <span>{{kgEntityInfo.entityType}}</span>
@@ -51,7 +51,7 @@
                 <span v-else><i>child: {{kgEntityInfo.noChildNodeInfo}}</i></span>
               </div>
             </el-card>
-          </div>
+          </div> -->
         </el-main>
       </el-container>
     </el-container>
@@ -142,6 +142,7 @@
                   method: 'get',
                   url: '/kg/graph/' + this.kgChosen,
               }).then(res => {
+                console.log(res)
                   let nodes = res.data.nodes;
                   let links = res.data.links;
                   this.kgData.nodes = nodes;
@@ -195,6 +196,9 @@
                     this.getRelNodes(nodeId);
                   } else {
                     this.kgEntityInfo.childNode = childNode;
+                    if (this.kgNodeUnfoldFlag[this.kgEntityInfo.id]) {
+                      this.unfoldRelNodes()
+                    }
                   }
                 } else {
                   this.kgEntityInfo.noChildNodeInfo = 'No relation node';
@@ -225,6 +229,9 @@
                                     this.kgNodeUnfoldFlag[nodes[node].id] = true;
                                 }
                             }
+                        }
+                        if (this.kgNodeUnfoldFlag[this.kgEntityInfo.id]) {
+                          this.unfoldRelNodes()
                         }
                     }).catch(error => {
                         console.log(error);
@@ -267,7 +274,7 @@
                 this.kgSvgComponents.colors = [
                     '#6ca46c', '#4e88af',
                     '#ca635f', '#d2907c',
-                    '#d6744d', '#ded295',
+                    '#d6744d', '#cec255',
                     '#b4c6e7', '#cdb4e6'
                 ];
                 this.kgSvgComponents.svg = d3.select("svg");
@@ -290,33 +297,120 @@
                     .attr("stroke-width", 1)
                     .style("stroke", "rgba(240, 240, 240, 0.8)");
 
+                let div = d3.select("body").append("div").attr("id", "hoverEffect")
+                    .style("opacity", 0)
+                    .style("color", "#313639")
+                    .style("background-color", "#ffffff")
+                    .style("text-align", "center")
+                    .style("border", "1px solid #313639")
+                    .style("border-radius", "8px")
+                    .style("padding", "3px")
+                    .style("width", "350px")
+                    .style("position", "relative")                    
+                    .style("white-space", "pre");
+
+                function setContent(d) {
+                  let content = '';
+                  if (d.type == "patient") {
+                        content += "patient_id: " + d.patient_id + "\n"
+                        content += "gender: " + d.gender + "\n"
+                        content += "religion: " + d.religion + "\n"
+                        content += "ethnicity: " + d.ethnicity + "\n"
+                        content += "birth_time: " + d.birth_time + "\n"                   
+                      } else if (d.type == "admission") {
+                        content += "admission_id: " + d.admission_id + "\n"
+                        content += "admit_time: " + d.admit_time + "\n"
+                        content += "duration: " + d.duration + "\n"
+                        content += "flag: " + d.flag + "\n"
+                        content += "admit_age: " + d.admit_age + "\n"
+                      } else if (d.type == "disease") {
+                        content += "disease_id: " + d.disease_id + "\n"
+                        content += "alias: " + d.alias + "\n"
+                      } else if (d.type == "drug") {
+                        content += "drug_id: " + d.drug_id + "\n"
+                        content += "count: " + d.count + "\n"
+                        content += "frequency: " + d.frequency + "\n"
+                        content += "drug_alias: " + d.drug_alias + "\n"
+                        content += "dose_val_rx: " + d.dose_val_rx + "\n"
+                        content += "dose_unit_rx: " + d.dose_unit_rx + "\n"
+                      }
+                  return content;
+                }
                 let node = svg.append("g").attr("class", "nodes")
                     .selectAll("circle").data(this.kgData.nodes).enter().append("circle")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
-                    .attr("r", d => {return 15;})
-                    .attr("fill", d => {return colors[d.id % 8];})
+                    .attr("r", d => {return 42;})
+                    .attr("fill", d => {
+                      if (d.type == "patient") {
+                        return colors[0]
+                      } else if (d.type == "admission") {
+                        return colors[1]
+                      } else if (d.type == "disease") {
+                        return colors[2]
+                      } else if (d.type == "drug") {
+                        return colors[5]
+                      }
+                    })
                     .style("stroke", "#fff")
                     .style("stroke-width", "2px")
                     .style("cursor", "pointer")
-                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+                    .on('mouseover', function (d, i) {
+                      div.transition()
+                        .duration(50)
+                        .style("opacity", 1);
+                      div.html(setContent(d))
+                        .style("left", (d3.event.pageX - 5) + "px")
+                        .style("top", (d3.event.pageY + 10) + "px")
+                    })
+                    .on('mousemove', function (d, i) {
+                      div.html(setContent(d))
+                        .style("left", (d3.event.pageX - 5) + "px")
+                        .style("top", (d3.event.pageY + 10) + "px")
+                    })
+                    .on('mouseout', function (d, i) {
+                      div.transition()
+                        .duration(50)
+                        .style("opacity", 0);
+                    });
 
                 node.on("click", d => {
+                    div.remove();
                     this.displayNodeInfo(d.id);
                 });
 
                 let text = svg.append("g").attr("class", "texts")
                     .selectAll("text").data(this.kgData.nodes).enter().append("text")
-                    .text(d => {return d.name;})
+                    .text(d => {return d.type;})
                     .attr("x", centerX)
                     .attr("y", centerY)
                     .attr("dy", 4)
                     .attr("text-anchor", "middle")
                     .attr("fill", "white")
                     .style("cursor", "pointer")
-                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+                    .on('mouseover', function (d, i) {
+                      div.transition()
+                        .duration(50)
+                        .style("opacity", 1);
+                      div.html(setContent(d))
+                        .style("left", (d3.event.pageX - 5) + "px")
+                        .style("top", (d3.event.pageY + 10) + "px")
+                    })
+                    .on('mousemove', function (d, i) {
+                      div.html(setContent(d))
+                        .style("left", (d3.event.pageX - 5) + "px")
+                        .style("top", (d3.event.pageY + 10) + "px")
+                    })
+                    .on('mouseout', function (d, i) {
+                      div.transition()
+                        .duration(50)
+                        .style("opacity", 0);
+                    });
 
                 text.on("click", d => {
+                    div.remove();
                     this.displayNodeInfo(d.id);
                 });
                 svg.selectAll("g").attr("transform", transform);
@@ -324,10 +418,10 @@
                 simulation.nodes(this.kgData.nodes).on("tick", ticked);
                 simulation.force("link").links(this.kgData.links);
                 simulation.alpha(0.1).restart();
-                svg.call(d3.zoom().on("zoom", () => {
-                    svg.selectAll("g").attr("transform", d3.event.transform);
-                    transform = d3.event.transform;
-                }));
+                // svg.call(d3.zoom().on("zoom", () => {
+                //     svg.selectAll("g").attr("transform", d3.event.transform);
+                //     transform = d3.event.transform;
+                // }));
                 svg.on("dblclick.zoom", null);
                 function ticked() {
                     link
@@ -538,6 +632,17 @@
 
 
 
+  #hoverEffect {
+    /* text-align: center;
+    padding: .5rem; */
+    background: #FFFFFF;
+    color: #313639;
+    /* border: 1px solid #313639;
+    border-radius: 8px;
+    pointer-events: none;
+    font-size: 1.3rem; */
+  }
+
 
 
 
@@ -550,7 +655,8 @@
     position: fixed;
     top: 160px;
     left: 30px;
-    right: 360px;
+    /* right: 360px; */
+    right: 30px;
     bottom: 0;
     margin: 20px;
     border: 3px solid #272b30;
