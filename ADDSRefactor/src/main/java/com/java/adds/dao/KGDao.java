@@ -91,6 +91,7 @@ public class KGDao {
      */
     public Map<String, Object> getNodeAndRelNodes(Long nodeId) {
         List<Map<String, Object>> kg = kgRepository.getNodeAndRelNodes(nodeId);
+        System.out.println(kg);
         return toD3Format(kg, true);
     }
 
@@ -144,19 +145,18 @@ public class KGDao {
         executeCypher(uploadRelCypher);
     }
 
-    public void createNode(Long kgId, String uid, String name) {
-        String createNodeIndexCypher = "CREATE INDEX ON :ADDSKGNode(name);";
-        String createNodeCypher =
-                "MERGE (n:ADDSKGNode:kgId40:kdId" + kgId +
-                        "{uid:\'" + uid + "\', name:\'" + name + "\'});";
-        executeCypher(createNodeIndexCypher);
+    public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
+        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
+        for (String key : attributes.keySet())
+            createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
+        createNodeCypher += "});";
         executeCypher(createNodeCypher);
     }
 
     public void createRel(Long kgId, String uid1, String uid2) {
         String createRelCypher =
-                "MATCH (x:ADDSKGNode:kdId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kdId" + kgId + "{uid:\'" + uid2 + "\'})" +
-                        "MERGE (x)-[r:ADDSKGRel{name:\'knows\'}]->(y);";
+                "MATCH (x:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid2 + "\'})" +
+                        "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
         executeCypher(createRelCypher);
     }
 
@@ -181,16 +181,41 @@ public class KGDao {
 
         KGNode startNode = (KGNode) kg.get(0).get("x");
         if (withOriginNode) {
-            nodes.add(map2("id", startNode.getId(), "name", startNode.getName()));
+            nodes.add(map(startNode));
         }
 
         for (Map<String, Object> triad : kg) {
             KGNode endNode = (KGNode) triad.get("y");
             KGRel rel = (KGRel) triad.get("r");
-            nodes.add(map2("id", endNode.getId(), "name", endNode.getName()));
+            nodes.add(map(endNode));
             rels.add(map3("source", startNode.getId(), "target", endNode.getId(), "value", rel.getName()));
         }
         return map2("nodes", nodes, "links", rels);
+    }
+
+    private Map<String, Object> map(KGNode node) {
+        Map<String, Object> result = new HashMap<String, Object>(19);
+        result.put("id", node.getId());
+        result.put("type", node.getType());
+        result.put("patient_id", node.getPatient_id());
+        result.put("gender", node.getGender());
+        result.put("religion", node.getReligion());
+        result.put("ethnicity", node.getEthnicity());
+        result.put("birth_time", node.getBirth_time());
+        result.put("admission_id", node.getAdmission_id());
+        result.put("admit_time", node.getAdmit_time());
+        result.put("duration", node.getDuration());
+        result.put("flag", node.getFlag());
+        result.put("admit_age", node.getAdmit_age());
+        result.put("disease_id", node.getDisease_id());
+        result.put("alias", node.getAlias());
+        result.put("drug_id", node.getDrug_id());
+        result.put("count", node.getCount());
+        result.put("frequency", node.getFrequency());
+        result.put("drug_alias", node.getDrug_alias());
+        result.put("dose_val_rx", node.getDose_val_rx());
+        result.put("dose_unit_rx", node.getDose_unit_rx());
+        return result;
     }
 
     private Map<String, Object> map2(String key1, Object value1, String key2, Object value2) {
