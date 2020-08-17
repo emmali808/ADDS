@@ -111,4 +111,15 @@ public class KGController {
         res.put("success", kgId);
         return res;
     }
+
+
+    /**
+     * Author: XYX
+     * Search for a specific node
+     */
+    @RequestMapping(value = "/node", method = RequestMethod.POST)
+    public Map<String, Object> searchNode(@RequestParam("node") String node)
+    {
+        return kgService.getKGByNode(node);
+    }
 }

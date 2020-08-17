@@ -84,6 +84,27 @@ public class KGDao {
         }
     }
 
+
+    /**
+     * Get Knowledge-Graph node by node content
+     * @param node node content
+     * @return node id
+     */
+    public Long getNodeByContent(String node) {
+        String getNodeCypher =
+                "MATCH (x:ADDSKGNode) " +
+                        "WHERE x.alias CONTAINS \'" + node + "\' OR x.drug_alias CONTAINS \'" + node + "\'" +
+                        "RETURN id(x) " +
+                        "LIMIT 1";
+
+        StatementResult result = executeCypher(getNodeCypher);
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().asLong();
+        } else {
+            return -1L;
+        }
+    }
+
     /**
      * Get Knowledge-Graph node and relational nodes by node id
      * @param nodeId node id
@@ -91,7 +112,6 @@ public class KGDao {
      */
     public Map<String, Object> getNodeAndRelNodes(Long nodeId) {
         List<Map<String, Object>> kg = kgRepository.getNodeAndRelNodes(nodeId);
-        System.out.println(kg);
         return toD3Format(kg, true);
     }
 

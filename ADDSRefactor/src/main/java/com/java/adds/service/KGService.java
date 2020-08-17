@@ -116,6 +116,21 @@ public class KGService {
     }
 
     /**
+     * Get Knowledge-Graph by searching for a specific node
+     * @param node node content
+     * @return KG data(partial): A String-Object Map format for D3
+     */
+    public Map<String, Object> getKGByNode(String node) {
+        Long nodeId = kgDao.getNodeByContent(node);
+        System.out.println(nodeId);
+        if (nodeId < 0) {
+            return kgDao.noDataFormat();
+        } else {
+            return kgDao.getNodeAndRelNodes(nodeId);
+        }
+    }
+
+    /**
      * Get Knowledge-Graph node's relational nodes by node id (without this node)
      * @param nodeId KG node id
      * @return KG data(partial): A String-Object Map format for D3

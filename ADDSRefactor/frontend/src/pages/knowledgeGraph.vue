@@ -20,6 +20,12 @@
 <!--              <el-button type="primary" @click="downloadKg">Download</el-button>-->
 <!--            </div>-->
           </div>
+          
+          <div class="search-bar">
+            <el-input placeholder="Search Node" v-model="searchContent" clearable>
+              <el-button slot="append" icon="el-icon-search" @click="searchNode"></el-button>
+            </el-input>
+          </div>
 
 <!--          <div class="btn-div">-->
 <!--            <el-select v-model="kgChosen" placeholder="Choose a knowledge graph">-->
@@ -112,7 +118,9 @@
                 bufferedChildEntities: {
                     nodes: [],
                     links: []
-                }
+                },
+                searchContent: '',
+                transform: ''
             };
         },
         methods: {
@@ -141,6 +149,48 @@
               this.$axios({
                   method: 'get',
                   url: '/kg/graph/' + this.kgChosen,
+              }).then(res => {
+                console.log(res)
+                  let nodes = res.data.nodes;
+                  let links = res.data.links;
+                  this.kgData.nodes = nodes;
+                  this.kgData.links = links;
+                  for (let node in nodes) {
+                      if (nodes.hasOwnProperty(node)) {
+                          this.kgNodeBufferedMap[nodes[node].id] = {
+                              id: nodes[node].id,
+                              name: nodes[node].name,
+                              childNode: [],
+                              relations: [],
+                              loadedInGraph: true
+                          };
+                      }
+                  }
+                  for (let link in links) {
+                      if (links.hasOwnProperty(link)) {
+                          this.kgNodeBufferedMap[links[link].source].childNode.push({
+                              id: this.kgNodeBufferedMap[links[link].target].id,
+                              name: this.kgNodeBufferedMap[links[link].target].name
+                          });
+                          this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
+                          this.kgNodeUnfoldFlag[links[link].source] = false;
+                          this.kgNodeUnfoldFlag[links[link].target] = true;
+                      }
+                  }
+                  this.paintGraph();
+              }).catch(error => {
+                  console.log(error);
+              });
+            },
+            searchNode(){
+              let params = new FormData();
+              params.append("node", this.searchContent);
+
+              this.removeCurrentKgData();
+              this.$axios({
+                  method: 'post',
+                  url: '/kg/node',
+                  data: params
               }).then(res => {
                 console.log(res)
                   let nodes = res.data.nodes;
@@ -286,7 +336,6 @@
                 let svg = this.kgSvgComponents.svg;
                 let simulation = this.kgSvgComponents.simulation;
                 let colors = this.kgSvgComponents.colors;
-                let transform = null;
 
                 svg.selectAll("*").remove();
                 let centerX = this.$refs.svgDiv.offsetWidth / 2;
@@ -413,15 +462,15 @@
                     div.remove();
                     this.displayNodeInfo(d.id);
                 });
-                svg.selectAll("g").attr("transform", transform);
+                svg.selectAll("g").attr("transform", this.transform);
 
                 simulation.nodes(this.kgData.nodes).on("tick", ticked);
                 simulation.force("link").links(this.kgData.links);
                 simulation.alpha(0.1).restart();
-                // svg.call(d3.zoom().on("zoom", () => {
-                //     svg.selectAll("g").attr("transform", d3.event.transform);
-                //     transform = d3.event.transform;
-                // }));
+                svg.call(d3.zoom().on("zoom", () => {
+                    svg.selectAll("g").attr("transform", d3.event.transform);
+                    this.transform = d3.event.transform;
+                }));
                 svg.on("dblclick.zoom", null);
                 function ticked() {
                     link
@@ -619,6 +668,7 @@
 
   .option-bar {
     /*text-align: center;*/
+    float: left;
   }
 
   .option-block {
@@ -682,5 +732,11 @@
 
   svg {
     background-color: #272b30;
+  }
+
+  .search-bar {
+    float: left;
+    margin: 0 50px;
+    width: 280px;
   }
 </style>
