@@ -123,7 +123,6 @@ public class KGService {
      */
     public Map<String, Object> getKGByNode(String node) {
         Long nodeId = kgDao.getNodeByContent(node);
-        System.out.println(nodeId);
         if (nodeId < 0) {
             return kgDao.noDataFormat();
         } else {
