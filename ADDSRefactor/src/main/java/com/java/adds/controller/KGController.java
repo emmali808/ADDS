@@ -112,7 +112,6 @@ public class KGController {
         return res;
     }
 
-
     /**
      * Author: XYX
      * Search for a specific node
@@ -121,5 +120,15 @@ public class KGController {
     public Map<String, Object> searchNode(@RequestParam("node") String node)
     {
         return kgService.getKGByNode(node);
+    }
+
+    /**
+     * Author: XYX
+     * Get the statistics of the whole graph
+     */
+    @RequestMapping(value = "/statistics", method = RequestMethod.GET)
+    public Map<String, Object> getStatistics()
+    {
+        return kgService.getStatistics();
     }
 }

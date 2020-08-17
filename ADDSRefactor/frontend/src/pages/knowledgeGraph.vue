@@ -4,7 +4,7 @@
       <NavigationBar/>
       <el-container>
         <el-main>
-          <div class="option-bar">
+          <!-- <div class="option-bar">
             <div class="option-block">
               <el-select v-model="kgChosen" placeholder="Choose a knowledge graph" @change="loadKG">
                 <el-option-group v-for="group in kgGroupList" :key="group.label" :label="group.label">
@@ -12,14 +12,14 @@
                   </el-option>
                 </el-option-group>
               </el-select>
-            </div>
+            </div> -->
 <!--            <div class="option-block">-->
 <!--              <el-button @click="initGraph">Reset</el-button>-->
 <!--            </div>-->
 <!--            <div class="option-block">-->
 <!--              <el-button type="primary" @click="downloadKg">Download</el-button>-->
 <!--            </div>-->
-          </div>
+          <!-- </div> -->
           
           <div class="search-bar">
             <el-input placeholder="Search Node" v-model="searchContent" clearable>
@@ -58,6 +58,21 @@
               </div>
             </el-card>
           </div> -->
+          <div class="info-div">
+            <el-card shadow="never">
+              <div slot="header" class="">
+                <span>Statistics</span>
+              </div>
+              <div>
+                <span>All nodes: <em>{{statistics.numOfNodes}}</em></span><br/><br/>
+                <span>Patients: <em>{{statistics.numOfPatients}}</em></span><br/>
+                <span>Admissions: <em>{{statistics.numOfAdmissions}}</em></span><br/>
+                <span>Diseases: <em>{{statistics.numOfDiseases}}</em></span><br/>
+                <span>Drugs: <em>{{statistics.numOfDrugs}}</em></span><br/><br/>
+                <span>Edges: <em>{{statistics.numOfEdges}}</em></span><br/>
+              </div>
+            </el-card>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -120,8 +135,22 @@
                     links: []
                 },
                 searchContent: '',
-                transform: ''
+                transform: '',
+                statistics: {}
             };
+        },
+        beforeMount: function() {
+          this.kgChosen = 41
+          this.loadKG()
+          this.$axios({
+              method: 'get',
+              url: '/kg/statistics/',
+          }).then(res => {
+            console.log("hi")
+              this.statistics = res.data
+          }).catch(error => {
+              console.log(error);
+          });
         },
         methods: {
             loadKGList() {
@@ -486,7 +515,7 @@
                         .attr("y", function(d) { return d.y; });
                 }
                 function dragstarted(d) {
-                    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+                    if (!d3.event.active) simulation.alphaTarget(0.1).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                 }
@@ -703,10 +732,11 @@
 
   .kg-div {
     position: fixed;
-    top: 160px;
+    /* top: 160px; */
+    top: 100px;
     left: 30px;
     /* right: 360px; */
-    right: 30px;
+    right: 320px;
     bottom: 0;
     margin: 20px;
     border: 3px solid #272b30;
@@ -719,7 +749,7 @@
     top: 160px;
     right: 30px;
     /*bottom: 0;*/
-    width: 300px;
+    width: 250px;
     margin: 20px;
     padding-top: 10px;
   }
@@ -735,8 +765,9 @@
   }
 
   .search-bar {
-    float: left;
-    margin: 0 50px;
-    width: 280px;
+    position: fixed;
+    top: 130px;
+    right: 50px;
+    width: 250px;
   }
 </style>

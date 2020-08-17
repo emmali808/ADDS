@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -137,5 +138,21 @@ public class KGService {
      */
     public Map<String, Object> getRelNodes(Long nodeId) {
         return kgDao.getRelNodes(nodeId);
+    }
+
+    /**
+     * Get statistics of the whole graph
+     * for the number of all nodes and edges and some type of nodes
+     * @return statistics map
+     */
+    public Map<String, Object> getStatistics() {
+        Map<String, Object> result = new HashMap<String, Object>(19);
+        result.put("numOfNodes", kgDao.getNumberOfAllNodes());
+        result.put("numOfEdges", kgDao.getNumberOfAllEdges());
+        result.put("numOfPatients", kgDao.getNumberOfTypeOfNodes("patient"));
+        result.put("numOfAdmissions", kgDao.getNumberOfTypeOfNodes("admission"));
+        result.put("numOfDiseases", kgDao.getNumberOfTypeOfNodes("disease"));
+        result.put("numOfDrugs", kgDao.getNumberOfTypeOfNodes("drug"));
+        return result;
     }
 }

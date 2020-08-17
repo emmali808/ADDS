@@ -106,6 +106,51 @@ public class KGDao {
     }
 
     /**
+     * Get number of all nodes
+     * @return node number
+     */
+    public Integer getNumberOfAllNodes() {
+        String getNumberCypher = "MATCH (n:ADDSKGNode) RETURN COUNT(n)";
+
+        StatementResult result = executeCypher(getNumberCypher);
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().asInt();
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Get number of some type of nodes
+     * @return node number
+     */
+    public Integer getNumberOfTypeOfNodes(String type) {
+        String getNumberCypher = "MATCH (n:ADDSKGNode) where n.type = \'" + type + "\' RETURN COUNT(n)";
+
+        StatementResult result = executeCypher(getNumberCypher);
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().asInt();
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Get number of all edges
+     * @return edge number
+     */
+    public Integer getNumberOfAllEdges() {
+        String getNumberCypher = "MATCH ()-[x:ADDSKGRel]->() RETURN COUNT(x)";
+
+        StatementResult result = executeCypher(getNumberCypher);
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().asInt();
+        } else {
+            return -1;
+        }
+    }
+
+    /**
      * Get Knowledge-Graph node and relational nodes by node id
      * @param nodeId node id
      * @return KG data(partial): A String-Object Map for d3
