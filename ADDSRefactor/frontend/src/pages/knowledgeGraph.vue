@@ -460,12 +460,23 @@
 
                 let text = svg.append("g").attr("class", "texts")
                     .selectAll("text").data(this.kgData.nodes).enter().append("text")
-                    .text(d => {return d.type;})
+                    .text(d => {
+                      if (d.type == "patient") {
+                        return "patient " + d.patient_id
+                      } else if (d.type == "admission") {
+                        return "admission " + d.admission_id
+                      } else if (d.type == "disease") {
+                        return d.alias
+                      } else if (d.type == "drug") {
+                        return d.drug_alias
+                      }
+                    })
                     .attr("x", centerX)
                     .attr("y", centerY)
                     .attr("dy", 4)
                     .attr("text-anchor", "middle")
                     .attr("fill", "white")
+                    // .attr("textLength", "60px")
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
@@ -515,7 +526,7 @@
                         .attr("y", function(d) { return d.y; });
                 }
                 function dragstarted(d) {
-                    if (!d3.event.active) simulation.alphaTarget(0.1).restart();
+                    if (!d3.event.active) simulation.alphaTarget(0.2).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                 }
@@ -708,23 +719,6 @@
   .option-block .el-select {
     width: 400px;
   }
-
-
-
-  #hoverEffect {
-    /* text-align: center;
-    padding: .5rem; */
-    background: #FFFFFF;
-    color: #313639;
-    /* border: 1px solid #313639;
-    border-radius: 8px;
-    pointer-events: none;
-    font-size: 1.3rem; */
-  }
-
-
-
-
 
   .btn-div {
     float: right;

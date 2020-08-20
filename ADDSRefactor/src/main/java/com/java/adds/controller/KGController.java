@@ -60,6 +60,10 @@ public class KGController {
         return kgService.getRelNodes(nodeId);
     }
 
+    /**
+     * Author: XYX
+     * Import MIMIC III graph
+     */
     @RequestMapping(value = "/createGraph", method = RequestMethod.GET)
     public void createGraph() {
         kgService.createGraph();
@@ -112,10 +116,6 @@ public class KGController {
         return res;
     }
 
-    /**
-     * Author: XYX
-     * Search for a specific node
-     */
     @RequestMapping(value = "/node", method = RequestMethod.POST)
     public Map<String, Object> searchNode(@RequestParam("node") String node)
     {
