@@ -78,7 +78,6 @@
     </el-container>
   </div>
 </template>
-
 <script>
     import NavigationBar from "../components/NavigationBar";
 
@@ -371,15 +370,15 @@
                     .attr("stroke-width", 1)
                     .style("stroke", "rgba(240, 240, 240, 0.8)");
 
-                let div = d3.select("body").append("div").attr("id", "hoverEffect")
+                let div = d3.select("body").append("div")
                     .style("opacity", 0)
                     .style("color", "#313639")
                     .style("background-color", "#ffffff")
                     .style("text-align", "center")
                     .style("border", "1px solid #313639")
                     .style("border-radius", "8px")
-                    .style("padding", "3px")
-                    .style("width", "350px")
+                    .style("padding", "10px 20px")
+                    .style("width", "fit-content")
                     .style("position", "relative")                    
                     .style("white-space", "pre");
 
@@ -414,7 +413,7 @@
                     .selectAll("circle").data(this.kgData.nodes).enter().append("circle")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
-                    .attr("r", d => {return 42;})
+                    .attr("r", d => {return 50;})
                     .attr("fill", d => {
                       if (d.type == "patient") {
                         return colors[0]
@@ -467,10 +466,8 @@
                         return d.drug_alias
                       }
                     })
-                    .attr("class", "nodeText")
                     .attr("x", centerX)
                     .attr("y", centerY)
-                    .attr("dy", 4)
                     .attr("text-anchor", "middle")
                     .attr("fill", "white")
                     .style("cursor", "pointer")
@@ -492,7 +489,51 @@
                       div.transition()
                         .duration(50)
                         .style("opacity", 0);
-                    });
+                    })
+                    .call(wrap);
+                
+                function wrap(text) {
+                  text.each(function() {
+                    var text = d3.select(this);
+                    var words = text.text().split(/\s+|\*/).reverse();
+                    var x = text.attr("x");
+                    var y = text.attr("y");
+                    var dy = -9;
+                    var tspan = text.text(null)
+                                .append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", dy);
+                    var line = [];
+                    var word;
+                    var lineNumber = 0;
+                    var lineHeight = 18;
+                    while (word = words.pop()) {
+                        line.push(word)
+                        tspan.text(line.join(" "))
+                        if (tspan.node().getComputedTextLength() > 80) {
+                            if (line.length == 1) {
+                                line.pop();
+                                tspan = text.append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", ++lineNumber * lineHeight + dy);
+                            } else {
+                                line.pop();
+                                tspan.text(line.join(" "));
+                                line = [word];
+                                tspan = text.append("tspan")
+                                    .attr("x", x)
+                                    .attr("y", y)
+                                    .attr("dy", ++lineNumber * lineHeight + dy)
+                                    .text(word);
+                            }
+                        }
+                    }
+                  })
+                }
+
+                var tspan = svg.selectAll("tspan");
 
                 text.on("click", d => {
                     div.remove();
@@ -521,9 +562,12 @@
                     text
                         .attr("x", function(d) { return d.x; })
                         .attr("y", function(d) { return d.y; });
+                    tspan
+                        .attr("x", function(d) { return d.x; })
+                        .attr("y", function(d) { return d.y; });
                 }
                 function dragstarted(d) {
-                    if (!d3.event.active) simulation.alphaTarget(0.1).restart();
+                    if (!d3.event.active) simulation.alphaTarget(0.2).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                 }
@@ -538,149 +582,6 @@
                 }
             },
             downloadKg() {
-            },
-            paintKG() {
-              // 获取 svg 元素所在块元素（svgDiv）的长度和高度，用来确定画布中心点
-              let width = this.$refs.svgDiv.offsetWidth;
-              let height = this.$refs.svgDiv.offsetHeight;
-
-              // let names = ['Films', 'Characters', 'Planets', 'Starships', 'Vehicles', 'Species'];
-              // 设置不同组的节点颜色
-              let colors = [
-                '#6ca46c', '#4e88af',
-                '#ca635f', '#d2907c',
-                '#d6744d', '#ded295',
-                '#b4c6e7', '#cdb4e6'];
-              // 获取图谱数据
-              // let graph = GraphData.graph();
-              let graph = this.kgData;
-
-              // 设置节点半径
-              for (let i = 0; i < graph.nodes.length; i++) {
-                let nd = graph.nodes[i];
-                nd.r = 15;
-                // nd.r = nd.id.length * 3; //(test)
-              }
-
-              // 创建一个力学模拟器（force 力学图）
-              let simulation = d3.forceSimulation()
-                  .force("link", d3.forceLink().id(function (d) {
-                    return d.id;
-                  }))
-                  // 设置万有引力，设置引力强度
-                  .force("charge", d3.forceManyBody().strength(100))
-                  // 设置居中力，中心点为画布中心点
-                  .force("center", d3.forceCenter(width / 2, height / 2))
-                  // 设置碰撞作用力，指定一个 radius 区域来防止节点重叠；设置碰撞力强度，范围是[0,1]，默认为0.7；设置迭代次数，默认为1（迭代次数越多最终的布局效果越好，但是计算复杂度更高）
-                  .force("collide", d3.forceCollide(80).strength(0.2).iterations(5))
-                // .force("collide", d3.forceCollide(100).strength(0.2).iterations(5)) //(test)
-                // // 设置 alpha 系数，在计时器的每一帧中，仿真的 alpha 系数会不断削减，当 alpha 到达一个系数时，仿真将会停止，也就是 alpha 的目标系数 alphaTarget，该值区间为[0,1]，默认为0，控制力学模拟衰减率区间为[0-1]，设为0则不停止，默认0.0228，直到0.001
-                // .alphaDecay(0.0228)
-                // // 设置监听事件，例如监听 tick 滴答事件
-                // .on("tick", ()=>this.ticked())
-              ;
-
-              // 获取 svg 元素
-              let svg = d3.select("svg");
-              svg.selectAll("*").remove();
-
-              // 设置鼠标滚轮缩放
-              svg.call(d3.zoom().on("zoom", function () {
-                svg.selectAll("g").attr("transform", d3.event.transform);
-              }));
-              // 禁止双击缩放
-              svg.on("dblclick.zoom", null);
-
-              // 添加 line
-              let link = svg.append("g").attr("class", "links")
-                .selectAll("line").data(graph.links).enter().append("line")
-                .attr("stroke-width", 1)
-                .style("stroke", "rgba(240, 240, 240, 0.8)");
-
-              // 添加 circle
-              let node = svg.append("g").attr("class", "nodes")
-                .selectAll("circle").data(graph.nodes).enter().append("circle")
-                .attr("r", function (d) {
-                  return d.r;
-                })
-                .attr("fill", function (d) {
-                  return colors[d.id % 8];
-                  // return 'rgb(140, 197, 255)';
-                })
-                .style("stroke", "#fff")
-                .style("stroke-width", "2px")
-                .style("cursor", "pointer")
-                .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended));
-
-              // node.append("title").text(d=>{return d.name});
-              node.on("click", d => {
-                // console.log(d.name);
-                this.kgEntityInfo.entityType = 'Node';
-                this.kgEntityInfo.name = d.name;
-              });
-
-              // 添加 text
-              let text = svg.append("g").attr("class", "texts")
-                .selectAll("text").data(graph.nodes).enter().append("text")
-                .text(d=>{return d.name})
-                .attr("dy", 4)
-                // 设置文本对齐方式为居中（start | middle | end）
-                .attr("text-anchor", "middle")
-                .attr("fill", "white")
-                // .style("display", "none") //(test)
-                // .style("display", "inline-block")
-                // .style("max-width", "15px")
-                // .style("white-space", "nowrap")
-                // .style("overflow", "hidden")
-                // .style("text-overflow", "ellipsis")
-                // .style("vertical-align", "middle")
-                .style("cursor", "pointer")
-                .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended));
-
-              simulation.nodes(graph.nodes).on("tick", ticked);
-              simulation.force("link").links(graph.links);
-
-              //ticked()函数确定link线的起始点x、y坐标 node确定中心点 文本通过translate平移变化
-              function ticked() {
-                link
-                  .attr("x1", function(d) {return d.source.x;})
-                  .attr("y1", function(d) {return d.source.y;})
-                  .attr("x2", function(d) {return d.target.x;})
-                  .attr("y2", function(d) {return d.target.y;});
-                node
-                  .attr("cx", function(d) {return d.x;})
-                  .attr("cy", function(d) {return d.y;});
-                text
-                  .attr("x", function(d) { return d.x; })
-                  .attr("y", function(d) { return d.y; });
-              }
-
-              function dragstarted(d) {
-                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
-                //dragging = true;
-              }
-
-              //拖动进行中
-              function dragged(d) {
-                d.fx = d3.event.x;
-                d.fy = d3.event.y;
-              }
-
-              //拖动结束
-              function dragended(d) {
-                if (!d3.event.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-                //dragging = false;
-              }
             }
         },
         created() {
@@ -753,6 +654,7 @@
 
   svg {
     background-color: #272b30;
+    border-radius: 4px;
   }
 
   .search-bar {
