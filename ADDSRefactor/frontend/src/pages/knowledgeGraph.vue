@@ -140,13 +140,12 @@
             };
         },
         beforeMount: function() {
-          this.kgChosen = 41
+          this.kgChosen = 0
           this.loadKG()
           this.$axios({
               method: 'get',
               url: '/kg/statistics/',
           }).then(res => {
-            console.log("hi")
               this.statistics = res.data
           }).catch(error => {
               console.log(error);
@@ -179,7 +178,6 @@
                   method: 'get',
                   url: '/kg/graph/' + this.kgChosen,
               }).then(res => {
-                console.log(res)
                   let nodes = res.data.nodes;
                   let links = res.data.links;
                   this.kgData.nodes = nodes;
@@ -221,7 +219,6 @@
                   url: '/kg/node',
                   data: params
               }).then(res => {
-                console.log(res)
                   let nodes = res.data.nodes;
                   let links = res.data.links;
                   this.kgData.nodes = nodes;
@@ -289,7 +286,6 @@
                         method: 'get',
                         url: '/kg/graph/relNodes/' + nodeId,
                     }).then(res => {
-                        // console.log(res.data);
                         let nodes = res.data.nodes;
                         let links = res.data.links;
                         this.kgNodeBufferedMap[nodeId].childNode = nodes;
@@ -471,12 +467,12 @@
                         return d.drug_alias
                       }
                     })
+                    .attr("class", "nodeText")
                     .attr("x", centerX)
                     .attr("y", centerY)
                     .attr("dy", 4)
                     .attr("text-anchor", "middle")
                     .attr("fill", "white")
-                    // .attr("textLength", "60px")
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
@@ -502,6 +498,7 @@
                     div.remove();
                     this.displayNodeInfo(d.id);
                 });
+
                 svg.selectAll("g").attr("transform", this.transform);
 
                 simulation.nodes(this.kgData.nodes).on("tick", ticked);
@@ -526,7 +523,7 @@
                         .attr("y", function(d) { return d.y; });
                 }
                 function dragstarted(d) {
-                    if (!d3.event.active) simulation.alphaTarget(0.2).restart();
+                    if (!d3.event.active) simulation.alphaTarget(0.1).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                 }

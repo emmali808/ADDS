@@ -53,7 +53,7 @@ public class KGService {
     }
 
     public void createGraph() {
-        File file = new File("H:/upload/11_12.txt");
+        File file = new File("H:/upload/0_10.txt");
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader((file)));
@@ -67,10 +67,10 @@ public class KGService {
             Pattern aPattern = Pattern.compile(aPatternString);
             Pattern ePattern = Pattern.compile(ePatternString);
 
+            Long graphId = (long) 0;
             String tempString = null;
             tempString = reader.readLine();
             while(tempString != null) {
-                Long graphId = (long) 0;
                 Matcher idMatcher = idPattern.matcher(tempString);
                 Matcher vMatcher = vPattern.matcher(tempString);
                 Matcher eMatcher = ePattern.matcher(tempString);
@@ -86,13 +86,13 @@ public class KGService {
                             tempString = reader.readLine();
                         }
                         else {
-                            kgDao.createNode((long)41, vMatcher.group(1), vMatcher.group(2), attributes);
+                            kgDao.createNode(graphId, vMatcher.group(1), vMatcher.group(2), attributes);
                             break;
                         }
                     }
                     continue;
                 } else if (eMatcher.find()) {
-                    kgDao.createRel((long)41, eMatcher.group(1), eMatcher.group(2) );
+                    kgDao.createRel(graphId, eMatcher.group(1), eMatcher.group(2) );
                 }
                 tempString = reader.readLine();
             }

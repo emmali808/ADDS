@@ -92,7 +92,7 @@ public class KGDao {
      */
     public Long getNodeByContent(String node) {
         String getNodeCypher =
-                "MATCH (x:ADDSKGNode) " +
+                "MATCH (x:ADDSKGNode:kgId0) " +
                         "WHERE x.alias CONTAINS \'" + node + "\' OR x.drug_alias CONTAINS \'" + node + "\'" +
                         "RETURN id(x) " +
                         "LIMIT 1";
@@ -110,7 +110,7 @@ public class KGDao {
      * @return node number
      */
     public Integer getNumberOfAllNodes() {
-        String getNumberCypher = "MATCH (n:ADDSKGNode) RETURN COUNT(n)";
+        String getNumberCypher = "MATCH (n:ADDSKGNode:kgId0) RETURN COUNT(n)";
 
         StatementResult result = executeCypher(getNumberCypher);
         if (result.hasNext()) {
@@ -125,7 +125,7 @@ public class KGDao {
      * @return node number
      */
     public Integer getNumberOfTypeOfNodes(String type) {
-        String getNumberCypher = "MATCH (n:ADDSKGNode) where n.type = \'" + type + "\' RETURN COUNT(n)";
+        String getNumberCypher = "MATCH (n:ADDSKGNode:kgId0) where n.type = \'" + type + "\' RETURN COUNT(n)";
 
         StatementResult result = executeCypher(getNumberCypher);
         if (result.hasNext()) {
@@ -140,7 +140,7 @@ public class KGDao {
      * @return edge number
      */
     public Integer getNumberOfAllEdges() {
-        String getNumberCypher = "MATCH ()-[x:ADDSKGRel]->() RETURN COUNT(x)";
+        String getNumberCypher = "MATCH (:kgId0)-[x:ADDSKGRel]->() RETURN COUNT(x)";
 
         StatementResult result = executeCypher(getNumberCypher);
         if (result.hasNext()) {
@@ -210,20 +210,37 @@ public class KGDao {
         executeCypher(uploadRelCypher);
     }
 
+//upload into one graph
     public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
-        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
+        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId0 {type:\'" + type + "\'";
         for (String key : attributes.keySet())
             createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
-        createNodeCypher += "});";
+        createNodeCypher += "}) SET n.uid = \'" + kgId + "_" + uid + "\';";
         executeCypher(createNodeCypher);
     }
 
     public void createRel(Long kgId, String uid1, String uid2) {
         String createRelCypher =
-                "MATCH (x:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid2 + "\'})" +
+                "MATCH (x:ADDSKGNode:kgId0 {uid:\'" + kgId + "_" + uid1 + "\'}), (y:ADDSKGNode:kgId0 {uid:\'" + kgId + "_" + uid2 + "\'})" +
                         "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
         executeCypher(createRelCypher);
     }
+
+//upload by different graphs
+//    public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
+//        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
+//        for (String key : attributes.keySet())
+//            createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
+//        createNodeCypher += "});";
+//        executeCypher(createNodeCypher);
+//    }
+//
+//    public void createRel(Long kgId, String uid1, String uid2) {
+//        String createRelCypher =
+//                "MATCH (x:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid2 + "\'})" +
+//                        "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
+//        executeCypher(createRelCypher);
+//    }
 
     /**
      * Execute Neo4j cypher
