@@ -473,65 +473,108 @@
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
-                      div.transition()
-                        .duration(50)
-                        .style("opacity", 1);
-                      div.html(setContent(d))
-                        .style("left", (d3.event.pageX - 5) + "px")
-                        .style("top", (d3.event.pageY + 10) + "px")
+                        div.transition()
+                            .duration(50)
+                            .style("opacity", 1);
+                        div.html(setContent(d))
+                            .style("left", (d3.event.pageX - 5) + "px")
+                            .style("top", (d3.event.pageY + 10) + "px")
                     })
                     .on('mousemove', function (d, i) {
-                      div.html(setContent(d))
-                        .style("left", (d3.event.pageX - 5) + "px")
-                        .style("top", (d3.event.pageY + 10) + "px")
+                        div.html(setContent(d))
+                            .style("left", (d3.event.pageX - 5) + "px")
+                            .style("top", (d3.event.pageY + 10) + "px")
                     })
                     .on('mouseout', function (d, i) {
-                      div.transition()
-                        .duration(50)
-                        .style("opacity", 0);
+                        div.transition()
+                            .duration(50)
+                            .style("opacity", 0);
                     })
                     .call(wrap);
                 
                 function wrap(text) {
-                  text.each(function() {
-                    var text = d3.select(this);
-                    var words = text.text().split(/\s+|\*/).reverse();
-                    var x = text.attr("x");
-                    var y = text.attr("y");
-                    var dy = -9;
-                    var tspan = text.text(null)
-                                .append("tspan")
-                                .attr("x", x)
-                                .attr("y", y)
-                                .attr("dy", dy);
-                    var line = [];
-                    var word;
-                    var lineNumber = 0;
-                    var lineHeight = 18;
-                    while (word = words.pop()) {
-                        line.push(word)
-                        tspan.text(line.join(" "))
-                        if (tspan.node().getComputedTextLength() > 80) {
-                            if (line.length == 1) {
-                                line.pop();
-                                tspan = text.append("tspan")
-                                .attr("x", x)
-                                .attr("y", y)
-                                .attr("dy", ++lineNumber * lineHeight + dy);
-                            } else {
-                                line.pop();
-                                tspan.text(line.join(" "));
-                                line = [word];
-                                tspan = text.append("tspan")
-                                    .attr("x", x)
-                                    .attr("y", y)
-                                    .attr("dy", ++lineNumber * lineHeight + dy)
-                                    .text(word);
+                    text.each(function() {
+                        var text = d3.select(this);
+                        var words = text.text().split(/\s+|\*/).reverse();
+                        var word;
+                        var x = text.attr("x");
+                        var y = text.attr("y");
+                        var dy = 5;
+                        var lines = [];
+                        var line = [];
+                        var lineNumber = 0;
+                        var lineHeight = 18;
+
+                        while (word = words.pop()) {
+                            line.push(word);
+                            if (line.join(" ").length > 9) {
+                                if (line.length == 1) {
+                                    lines.push(line.join(" "));
+                                    line.pop();
+                                } else {
+                                    line.pop();
+                                    lines.push(line.join(" "));
+                                    line = [word];
+                                }
                             }
                         }
-                    }
-                  })
+                        if (line.length != 0) {
+                            lines.push(line.join(" "));
+                        }
+
+                        text.text(null)
+                        dy = dy + lineHeight * (1 - lines.length) * 0.5 // calculate actual offset of y
+                        for (let index = 0; index < lines.length; index++) {
+                            const element = lines[index];
+                            text.append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", lineNumber++ * lineHeight + dy)
+                                .text(element);
+                        }
+                    })
                 }
+
+                // function wrap(text) {
+                //   text.each(function() {
+                //     var text = d3.select(this);
+                //     var words = text.text().split(/\s+|\*/).reverse();
+                //     var x = text.attr("x");
+                //     var y = text.attr("y");
+                //     var dy = -9;
+                //     var tspan = text.text(null)
+                //                 .append("tspan")
+                //                 .attr("x", x)
+                //                 .attr("y", y)
+                //                 .attr("dy", dy);
+                //     var line = [];
+                //     var word;
+                //     var lineNumber = 0;
+                //     var lineHeight = 18;
+                //     while (word = words.pop()) {
+                //         line.push(word)
+                //         tspan.text(line.join(" "))
+                //         if (tspan.node().getComputedTextLength() > 80) {
+                //             if (line.length == 1) {
+                //                 line.pop();
+                //                 tspan = text.append("tspan")
+                //                 .attr("x", x)
+                //                 .attr("y", y)
+                //                 .attr("dy", ++lineNumber * lineHeight + dy);
+                //             } else {
+                //                 line.pop();
+                //                 tspan.text(line.join(" "));
+                //                 line = [word];
+                //                 tspan = text.append("tspan")
+                //                     .attr("x", x)
+                //                     .attr("y", y)
+                //                     .attr("dy", ++lineNumber * lineHeight + dy)
+                //                     .text(word);
+                //             }
+                //         }
+                //     }
+                //   })
+                // }
 
                 var tspan = svg.selectAll("tspan");
 
