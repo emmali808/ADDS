@@ -84,6 +84,25 @@ public class KGDao {
         }
     }
 
+    /**
+     * Get Knowledge-Graph admission node randomly
+     * @return admission node id
+     */
+    public Long getRandomAdmissionNode() {
+        String getCentralityListCypher =
+                "MATCH (x:kgId0)-[r]-(y) " +
+                        "WHERE x.type = \"admission\" " +
+                        "RETURN id(x), rand() as r " +
+                        "ORDER BY r " +
+                        "LIMIT 1";
+        StatementResult result = executeCypher(getCentralityListCypher);
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().asLong();
+        } else {
+            return -1L;
+        }
+    }
+
 
     /**
      * Get Knowledge-Graph node by node content

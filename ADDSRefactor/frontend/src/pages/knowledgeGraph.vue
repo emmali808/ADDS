@@ -323,11 +323,10 @@
                         }
                     }
                 }
-                // 这里可能会出现重复的link，使用linkSet去重是否有效？待测试
+                // 这里可能会出现重复的link，使用linkSet去重是否有效？无效 因为link的source和target互换了
                 let links = this.kgData.links.concat(this.kgNodeBufferedMap[this.kgEntityInfo.id].relations);
                 let linkSet = new Set(links);
                 this.kgData.links = Array.from(linkSet);
-                // paintGraph方法重新设计
                 this.paintGraph();
                 this.kgNodeUnfoldFlag[this.kgEntityInfo.id] = false;
             },
@@ -366,7 +365,14 @@
                 let centerY = this.$refs.svgDiv.offsetHeight / 2;
 
                 let link = svg.append("g").attr("class", "links")
-                    .selectAll("line").data(this.kgData.links).enter().append("line")
+                    .selectAll("line").data(this.kgData.links.filter((link) => {
+                        for (const node of this.kgData.nodes) {
+                            if (node.type == "drug" && node.id == link.target) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })).enter().append("line")
                     .attr("stroke-width", 1)
                     .style("stroke", "rgba(240, 240, 240, 0.8)");
 
@@ -410,7 +416,7 @@
                   return content;
                 }
                 let node = svg.append("g").attr("class", "nodes")
-                    .selectAll("circle").data(this.kgData.nodes).enter().append("circle")
+                    .selectAll("circle").data(this.kgData.nodes.filter((node) => {return node.type != "drug"})).enter().append("circle")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
                     .attr("r", d => {return 50;})
@@ -454,7 +460,7 @@
                 });
 
                 let text = svg.append("g").attr("class", "texts")
-                    .selectAll("text").data(this.kgData.nodes).enter().append("text")
+                    .selectAll("text").data(this.kgData.nodes.filter((node) => {return node.type != "drug"})).enter().append("text")
                     .text(d => {
                       if (d.type == "patient") {
                         return "patient " + d.patient_id
@@ -495,7 +501,7 @@
                 function wrap(text) {
                     text.each(function() {
                         var text = d3.select(this);
-                        var words = text.text().split(/\s+|\*/).reverse();
+                        var words = text.text().split(/\s+|\*|-/).reverse();
                         var word;
                         var x = text.attr("x");
                         var y = text.attr("y");
@@ -535,47 +541,6 @@
                     })
                 }
 
-                // function wrap(text) {
-                //   text.each(function() {
-                //     var text = d3.select(this);
-                //     var words = text.text().split(/\s+|\*/).reverse();
-                //     var x = text.attr("x");
-                //     var y = text.attr("y");
-                //     var dy = -9;
-                //     var tspan = text.text(null)
-                //                 .append("tspan")
-                //                 .attr("x", x)
-                //                 .attr("y", y)
-                //                 .attr("dy", dy);
-                //     var line = [];
-                //     var word;
-                //     var lineNumber = 0;
-                //     var lineHeight = 18;
-                //     while (word = words.pop()) {
-                //         line.push(word)
-                //         tspan.text(line.join(" "))
-                //         if (tspan.node().getComputedTextLength() > 80) {
-                //             if (line.length == 1) {
-                //                 line.pop();
-                //                 tspan = text.append("tspan")
-                //                 .attr("x", x)
-                //                 .attr("y", y)
-                //                 .attr("dy", ++lineNumber * lineHeight + dy);
-                //             } else {
-                //                 line.pop();
-                //                 tspan.text(line.join(" "));
-                //                 line = [word];
-                //                 tspan = text.append("tspan")
-                //                     .attr("x", x)
-                //                     .attr("y", y)
-                //                     .attr("dy", ++lineNumber * lineHeight + dy)
-                //                     .text(word);
-                //             }
-                //         }
-                //     }
-                //   })
-                // }
-
                 var tspan = svg.selectAll("tspan");
 
                 text.on("click", d => {
@@ -585,8 +550,15 @@
 
                 svg.selectAll("g").attr("transform", this.transform);
 
-                simulation.nodes(this.kgData.nodes).on("tick", ticked);
-                simulation.force("link").links(this.kgData.links);
+                simulation.nodes(this.kgData.nodes.filter((node) => {return node.type != "drug"})).on("tick", ticked);
+                simulation.force("link").links(this.kgData.links.filter((link) => {
+                    for (const node of this.kgData.nodes) {
+                        if (node.type == "drug" && node.id == link.target) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }));
                 simulation.alpha(0.1).restart();
                 svg.call(d3.zoom().on("zoom", () => {
                     svg.selectAll("g").attr("transform", d3.event.transform);

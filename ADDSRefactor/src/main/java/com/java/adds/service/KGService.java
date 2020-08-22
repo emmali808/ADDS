@@ -108,7 +108,8 @@ public class KGService {
      * @return KG data(partial): A String-Object Map format for D3
      */
     public Map<String, Object> getKGById(Long kgId) {
-        Long nodeId = kgDao.getCentralNodeByKGId(kgId);
+//        Long nodeId = kgDao.getCentralNodeByKGId(kgId);
+        Long nodeId = kgDao.getRandomAdmissionNode();
         if (nodeId < 0) {
             return kgDao.noDataFormat();
         } else {
