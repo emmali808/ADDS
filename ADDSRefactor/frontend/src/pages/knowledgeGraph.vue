@@ -372,8 +372,6 @@
                 this.kgSvgComponents.nodeTextGroup = this.kgSvgComponents.svg.append("g").attr("class", "texts");
             },
             paintGraph() {
-              // console.log(this.hideNode)
-              // console.log(this.kgData.nodes.length)
                 let svg = this.kgSvgComponents.svg;
                 let simulation = this.kgSvgComponents.simulation;
                 let colors = this.kgSvgComponents.colors;
@@ -394,19 +392,24 @@
                     .attr("stroke-width", 1)
                     .style("stroke", "rgba(240, 240, 240, 0.8)");
 
-                let div = d3.select("body").append("div")
-                    .style("opacity", 0)
-                    .style("color", "#313639")
-                    .style("background-color", "#ffffff")
+                let tooltip = d3.select("body").select(".tooltip")
+                if (tooltip._groups[0][0] == null) {
+                    tooltip = d3.select("body").append("div")
+                    .attr("class", "tooltip")
+                    .style("display", "none")
+                    .style("color", "#ffffff")
+                    .style("background-color", "#303133")
                     .style("text-align", "center")
-                    .style("border", "1px solid #313639")
-                    .style("border-radius", "8px")
+                    .style("border", "1px solid #303133")
+                    .style("border-radius", "4px")
                     .style("padding", "10px 20px")
                     .style("width", "fit-content")
                     .style("position", "relative")                    
-                    .style("white-space", "pre");
+                    .style("white-space", "pre")
+                    .style("box-shadow", "2px 2px 2px #202020");
+                }
 
-                function setContent(d) {
+                function setTooltipContent(d) {
                   let content = '';
                   if (d.type == "patient") {
                         content += "patient_id: " + d.patient_id + "\n"
@@ -437,47 +440,43 @@
                 function nodeCheck(node) {
                     return !that.hideNode.includes(node.type)
                 }
+                function updateTooltip(d) {
+                    tooltip.html(setTooltipContent(d))
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - tooltip.node().getBoundingClientRect().height * 0.5) + "px");
+                }
                 let node = svg.append("g").attr("class", "nodes")
                     .selectAll("circle").data(this.kgData.nodes.filter(nodeCheck)).enter().append("circle")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
                     .attr("r", d => {return 50;})
                     .attr("fill", d => {
-                      if (d.type == "patient") {
-                        return colors[0]
-                      } else if (d.type == "admission") {
-                        return colors[1]
-                      } else if (d.type == "disease") {
-                        return colors[2]
-                      } else if (d.type == "drug") {
-                        return colors[5]
-                      }
+                        if (d.type == "patient") {
+                            return colors[0]
+                        } else if (d.type == "admission") {
+                            return colors[1]
+                        } else if (d.type == "disease") {
+                            return colors[2]
+                        } else if (d.type == "drug") {
+                            return colors[5]
+                        }
                     })
                     .style("stroke", "#fff")
                     .style("stroke-width", "2px")
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
-                      div.transition()
-                        .duration(50)
-                        .style("opacity", 1);
-                      div.html(setContent(d))
-                        .style("left", (d3.event.pageX - 5) + "px")
-                        .style("top", (d3.event.pageY + 10) + "px")
+                        tooltip.style("display", "block");
+                        updateTooltip(d);
                     })
                     .on('mousemove', function (d, i) {
-                      div.html(setContent(d))
-                        .style("left", (d3.event.pageX - 5) + "px")
-                        .style("top", (d3.event.pageY + 10) + "px")
+                        updateTooltip(d);
                     })
                     .on('mouseout', function (d, i) {
-                      div.transition()
-                        .duration(50)
-                        .style("opacity", 0);
+                        tooltip.style("display", "none");
                     });
 
                 node.on("click", d => {
-                    div.remove();
                     this.displayNodeInfo(d.id);
                 });
 
@@ -501,22 +500,14 @@
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
-                        div.transition()
-                            .duration(50)
-                            .style("opacity", 1);
-                        div.html(setContent(d))
-                            .style("left", (d3.event.pageX - 5) + "px")
-                            .style("top", (d3.event.pageY + 10) + "px")
+                        tooltip.style("display", "block");
+                        updateTooltip(d);
                     })
                     .on('mousemove', function (d, i) {
-                        div.html(setContent(d))
-                            .style("left", (d3.event.pageX - 5) + "px")
-                            .style("top", (d3.event.pageY + 10) + "px")
+                        updateTooltip(d);
                     })
                     .on('mouseout', function (d, i) {
-                        div.transition()
-                            .duration(50)
-                            .style("opacity", 0);
+                        tooltip.style("display", "none");
                     })
                     .call(wrap);
                 
@@ -566,7 +557,6 @@
                 var tspan = svg.selectAll("tspan");
 
                 text.on("click", d => {
-                    div.remove();
                     this.displayNodeInfo(d.id);
                 });
 
