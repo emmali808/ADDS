@@ -12,36 +12,25 @@
                   </el-option>
                 </el-option-group>
               </el-select>
-            </div> -->
-<!--            <div class="option-block">-->
-<!--              <el-button @click="initGraph">Reset</el-button>-->
-<!--            </div>-->
-<!--            <div class="option-block">-->
-<!--              <el-button type="primary" @click="downloadKg">Download</el-button>-->
-<!--            </div>-->
-          <!-- </div> -->
+            </div>
+           <div class="option-block">
+             <el-button @click="initGraph">Reset</el-button>
+           </div>
+           <div class="option-block">
+             <el-button type="primary" @click="downloadKg">Download</el-button>
+           </div>
+          </div> -->
           
-          <div class="search-bar">
-            <el-input placeholder="Search Node" v-model="searchContent" clearable>
-              <el-button slot="append" icon="el-icon-search" @click="searchNode"></el-button>
-            </el-input>
-          </div>
-
-<!--          <div class="btn-div">-->
-<!--            <el-select v-model="kgChosen" placeholder="Choose a knowledge graph">-->
-<!--              <el-option-group v-for="group in kgGroupList" :key="group.label" :label="group.label">-->
-<!--                <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value">-->
-<!--                </el-option>-->
-<!--              </el-option-group>-->
-<!--            </el-select>-->
-<!--            <el-button @click="initGraph">Reset</el-button>-->
-<!--            <el-button type="primary" @click="downloadKg">Download</el-button>-->
-<!--          </div>-->
           <div class="kg-div">
             <div class="svg-div" ref="svgDiv">
               <svg width="100%" height="100%">
               </svg>
             </div>
+          </div>
+          <div class="search-bar">
+            <el-input placeholder="Search Node" v-model="searchContent" clearable>
+              <el-button slot="append" icon="el-icon-search" @click="searchNode"></el-button>
+            </el-input>
           </div>
           <!-- <div class="info-div">
             <el-card>
@@ -72,6 +61,28 @@
                 <span>Edges: <em>{{statistics.numOfEdges}}</em></span><br/>
               </div>
             </el-card>
+          </div>
+          <div class="option-div">
+            <el-switch
+              v-model="displayPatient"
+              active-text="Display Patient Nodes"
+              @change="patientSwitchChange">
+            </el-switch>
+            <el-switch
+              v-model="displayAdmission"
+              active-text="Display Admission Nodes"
+              @change="admissionSwitchChange">
+            </el-switch>
+            <el-switch
+              v-model="displayDisease"
+              active-text="Display Disease Nodes"
+              @change="diseaseSwitchChange">
+            </el-switch>
+            <el-switch
+              v-model="displayDrug"
+              active-text="Display Drug Nodes"
+              @change="drugSwitchChange">
+            </el-switch>
           </div>
         </el-main>
       </el-container>
@@ -135,7 +146,12 @@
                 },
                 searchContent: '',
                 transform: '',
-                statistics: {}
+                statistics: {},
+                displayPatient: true,
+                displayAdmission: true,
+                displayDisease: true,
+                displayDrug: false,
+                hideNode: ["drug"]
             };
         },
         beforeMount: function() {
@@ -356,6 +372,8 @@
                 this.kgSvgComponents.nodeTextGroup = this.kgSvgComponents.svg.append("g").attr("class", "texts");
             },
             paintGraph() {
+              // console.log(this.hideNode)
+              // console.log(this.kgData.nodes.length)
                 let svg = this.kgSvgComponents.svg;
                 let simulation = this.kgSvgComponents.simulation;
                 let colors = this.kgSvgComponents.colors;
@@ -367,7 +385,7 @@
                 let link = svg.append("g").attr("class", "links")
                     .selectAll("line").data(this.kgData.links.filter((link) => {
                         for (const node of this.kgData.nodes) {
-                            if (node.type == "drug" && node.id == link.target) {
+                            if (this.hideNode.includes(node.type) && (node.id == link.target.id || node.id == link.source.id)) {
                                 return false;
                             }
                         }
@@ -415,8 +433,12 @@
                       }
                   return content;
                 }
+                var that = this;
+                function nodeCheck(node) {
+                    return !that.hideNode.includes(node.type)
+                }
                 let node = svg.append("g").attr("class", "nodes")
-                    .selectAll("circle").data(this.kgData.nodes.filter((node) => {return node.type != "drug"})).enter().append("circle")
+                    .selectAll("circle").data(this.kgData.nodes.filter(nodeCheck)).enter().append("circle")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
                     .attr("r", d => {return 50;})
@@ -460,7 +482,7 @@
                 });
 
                 let text = svg.append("g").attr("class", "texts")
-                    .selectAll("text").data(this.kgData.nodes.filter((node) => {return node.type != "drug"})).enter().append("text")
+                    .selectAll("text").data(this.kgData.nodes.filter(nodeCheck)).enter().append("text")
                     .text(d => {
                       if (d.type == "patient") {
                         return "patient " + d.patient_id
@@ -550,10 +572,10 @@
 
                 svg.selectAll("g").attr("transform", this.transform);
 
-                simulation.nodes(this.kgData.nodes.filter((node) => {return node.type != "drug"})).on("tick", ticked);
+                simulation.nodes(this.kgData.nodes.filter(nodeCheck)).on("tick", ticked);
                 simulation.force("link").links(this.kgData.links.filter((link) => {
                     for (const node of this.kgData.nodes) {
-                        if (node.type == "drug" && node.id == link.target) {
+                        if (this.hideNode.includes(node.type) && (node.id == link.target || node.id == link.source)) {
                             return false;
                         }
                     }
@@ -597,6 +619,26 @@
                 }
             },
             downloadKg() {
+            },
+            patientSwitchChange(bool) {
+              this.switchChange(bool, "patient")
+            },
+            admissionSwitchChange(bool) {
+              this.switchChange(bool, "admission")
+            },
+            diseaseSwitchChange(bool) {
+              this.switchChange(bool, "disease")
+            },
+            drugSwitchChange(bool) {
+              this.switchChange(bool, "drug")
+            },
+            switchChange(bool, type) {
+              if (bool) {
+                this.hideNode.splice(this.hideNode.indexOf(type), 1);
+              } else {
+                this.hideNode.push(type);
+              }
+              this.paintGraph()
             }
         },
         created() {
@@ -677,5 +719,20 @@
     top: 130px;
     right: 50px;
     width: 250px;
+  }
+  
+  .option-div {
+    position: fixed;
+    top: 430px;
+    right: 30px;
+    width: 208px;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+  }
+  
+  .option-div .el-switch:not(:last-child) {
+    padding-bottom: 10px;
   }
 </style>
