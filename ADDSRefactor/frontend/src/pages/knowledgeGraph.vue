@@ -63,26 +63,37 @@
             </el-card>
           </div>
           <div class="option-div">
-            <el-switch
-              v-model="displayPatient"
-              active-text="Display Patient Nodes"
-              @change="patientSwitchChange">
-            </el-switch>
-            <el-switch
-              v-model="displayAdmission"
-              active-text="Display Admission Nodes"
-              @change="admissionSwitchChange">
-            </el-switch>
-            <el-switch
-              v-model="displayDisease"
-              active-text="Display Disease Nodes"
-              @change="diseaseSwitchChange">
-            </el-switch>
-            <el-switch
-              v-model="displayDrug"
-              active-text="Display Drug Nodes"
-              @change="drugSwitchChange">
-            </el-switch>
+            <el-card shadow="never">
+              <div slot="header" class="">
+                <span>Display Options</span>
+              </div>
+              <div>
+                <el-switch
+                  v-model="displayPatient"
+                  active-text="Patients"
+                  @change="patientSwitchChange">
+                </el-switch>
+                <br/>
+                <el-switch
+                  v-model="displayAdmission"
+                  active-text="Admissions"
+                  @change="admissionSwitchChange">
+                </el-switch>
+                <br/>
+                <el-switch
+                  v-model="displayDisease"
+                  active-text="Diseases"
+                  @change="diseaseSwitchChange">
+                </el-switch>
+                <br/>
+                <el-switch
+                  v-model="displayDrug"
+                  active-text="Drugs"
+                  @change="drugSwitchChange">
+                </el-switch>
+              </div>
+            </el-card>
+            
           </div>
         </el-main>
       </el-container>
@@ -715,11 +726,8 @@
     position: fixed;
     top: 430px;
     right: 30px;
-    width: 208px;
+    width: 250px;
     margin: 20px;
-    padding: 20px;
-    border: 1px solid #ebeef5;
-    border-radius: 4px;
   }
   
   .option-div .el-switch:not(:last-child) {
