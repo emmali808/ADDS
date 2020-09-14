@@ -6,7 +6,6 @@
         :default-active="this.$route.path"
         :default-openeds="['2']">
         <el-menu-item index="/autoDiagnosis/uploadMedicalRecords">Upload Medical Records</el-menu-item>
-        <el-menu-item index="/autoDiagnosis/selectCase">Select Similar Case</el-menu-item>
         <el-menu-item index="/autoDiagnosis/machineDiagnosis">Machine Diagnosis</el-menu-item>
         <el-menu-item index="/autoDiagnosis/submitQuestions">Submit Questions</el-menu-item>
       </el-menu>

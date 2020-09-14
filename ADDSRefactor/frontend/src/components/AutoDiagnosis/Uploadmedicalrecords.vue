@@ -77,7 +77,7 @@
 
   #submitBtn {
     position: relative;
-    left: 250px;
+    left: 230px;
     top: 40px;
   }
 

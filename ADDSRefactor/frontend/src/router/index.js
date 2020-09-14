@@ -26,7 +26,6 @@ import autoDiagnosis from "../pages/autoDiagnosis";
 import UploadMedicalRecords from "../components/AutoDiagnosis/Uploadmedicalrecords";
 import MachineDiagnosis from "../components/AutoDiagnosis/MachineDiagnosis";
 import SubmitQuestions from "../components/AutoDiagnosis/SubmitQuestions";
-import SelectCase from "../components/AutoDiagnosis/SelectCase";
 
 
 
@@ -147,10 +146,6 @@ const router = new Router({
           path: 'submitQuestions',
           name: 'SubmitQuestions',
           component: SubmitQuestions
-        },{
-          path: 'selectCase',
-          name: 'SelectCase',
-          component: SelectCase
         }
       ]
     }
