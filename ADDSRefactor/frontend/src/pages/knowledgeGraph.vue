@@ -724,7 +724,7 @@
   
   .option-div {
     position: fixed;
-    top: 430px;
+    top: 480px;
     right: 30px;
     width: 250px;
     margin: 20px;

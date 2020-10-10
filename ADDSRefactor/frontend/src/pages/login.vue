@@ -11,7 +11,7 @@
           <el-input v-model="loginForm.username" name="username" placeholder="Username" auto-complete="on"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="loginForm.password" name="password" placeholder="Password" auto-complete="on" show-password></el-input>
+          <el-input v-model="loginForm.password" name="password" placeholder="Password" auto-complete="on" show-password @keyup.enter.native="login"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="login">Log in</el-button>

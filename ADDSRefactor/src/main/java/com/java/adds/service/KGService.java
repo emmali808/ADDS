@@ -53,52 +53,57 @@ public class KGService {
     }
 
     public void createGraph() {
-        File file = new File("H:/upload/0_10.txt");
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader((file)));
-            String idPatternString = "t (\\d+)";
-            String vPatternString = "v (\\d+) (.*)";
-            String aPatternString = "a (\\w+) (.*)";
-            String ePatternString = "e (\\d+) (\\d+)";
+        File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
+        File[] fileList = folder.listFiles();
+        for (int i = 0; i < fileList.length; i++) {
+            System.out.println("start importing " + fileList[i]);
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader((fileList[i])));
+                String idPatternString = "t (\\d+)";
+                String vPatternString = "v (\\d+) (.*)";
+                String aPatternString = "a (\\w+) (.*)";
+                String ePatternString = "e (\\d+) (\\d+)";
 
-            Pattern idPattern = Pattern.compile(idPatternString);
-            Pattern vPattern = Pattern.compile(vPatternString);
-            Pattern aPattern = Pattern.compile(aPatternString);
-            Pattern ePattern = Pattern.compile(ePatternString);
+                Pattern idPattern = Pattern.compile(idPatternString);
+                Pattern vPattern = Pattern.compile(vPatternString);
+                Pattern aPattern = Pattern.compile(aPatternString);
+                Pattern ePattern = Pattern.compile(ePatternString);
 
-            Long graphId = (long) 0;
-            String tempString = null;
-            tempString = reader.readLine();
-            while(tempString != null) {
-                Matcher idMatcher = idPattern.matcher(tempString);
-                Matcher vMatcher = vPattern.matcher(tempString);
-                Matcher eMatcher = ePattern.matcher(tempString);
-                if (idMatcher.find()) {
-                    graphId = Long.parseLong(idMatcher.group(1));
-                } else if (vMatcher.find()) {
-                    Map<String, String> attributes = new LinkedHashMap<>();
-                    tempString = reader.readLine();
-                    while(tempString != null) {
-                        Matcher aMatcher = aPattern.matcher(tempString);
-                        if (aMatcher.find()) {
-                            attributes.put(aMatcher.group(1), aMatcher.group(2));
-                            tempString = reader.readLine();
-                        }
-                        else {
-                            kgDao.createNode(graphId, vMatcher.group(1), vMatcher.group(2), attributes);
-                            break;
-                        }
-                    }
-                    continue;
-                } else if (eMatcher.find()) {
-                    kgDao.createRel(graphId, eMatcher.group(1), eMatcher.group(2) );
-                }
+                Long graphId = (long) 0;
+                String tempString = null;
                 tempString = reader.readLine();
+                while (tempString != null) {
+                    Matcher idMatcher = idPattern.matcher(tempString);
+                    Matcher vMatcher = vPattern.matcher(tempString);
+                    Matcher eMatcher = ePattern.matcher(tempString);
+                    if (idMatcher.find()) {
+                        graphId = Long.parseLong(idMatcher.group(1));
+                        System.out.println("graph " + graphId);
+                    } else if (vMatcher.find()) {
+                        Map<String, String> attributes = new LinkedHashMap<>();
+                        tempString = reader.readLine();
+                        while (tempString != null) {
+                            Matcher aMatcher = aPattern.matcher(tempString);
+                            if (aMatcher.find()) {
+                                attributes.put(aMatcher.group(1), aMatcher.group(2));
+                                tempString = reader.readLine();
+                            } else {
+                                kgDao.createNode(graphId, vMatcher.group(1), vMatcher.group(2), attributes);
+                                break;
+                            }
+                        }
+                        continue;
+                    } else if (eMatcher.find()) {
+                        kgDao.createRel(graphId, eMatcher.group(1), eMatcher.group(2));
+                    }
+                    tempString = reader.readLine();
+                }
+                reader.close();
+                System.out.println("finish importing " + fileList[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

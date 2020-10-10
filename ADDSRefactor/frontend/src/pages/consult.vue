@@ -14,14 +14,12 @@
               </el-select>
             </div>
             <div id="chat-history-box">
-              <div id="chat-history" ref="chat">
-                {{chats}}
-              </div>
+              <div id="chat-history" ref="chat"></div>
             </div>
           </el-main>
           <el-footer>
             <div id="input">
-              <el-input placeholder="input here" v-model="input" @keyup.enter.native="send">
+              <el-input placeholder="Input here" v-model="input" @keyup.enter.native="send">
                 <el-button slot="append" @click="send">SEND</el-button>
               </el-input>
             </div>
@@ -57,7 +55,6 @@
       data() {
         return {
           input: '',
-          chats: '',
           characterList: [{
             options: [
                 {value:1, label: "AI Robot"},
@@ -72,8 +69,35 @@
       },
       methods: {
         send() {
-          this.chats += this.input + '\n'
-          this.input = ''
+          if (this.input != '') {
+            var outer_div = document.createElement('div');
+            outer_div.style = 'width: 100%; overflow: auto;';
+            var div = document.createElement('div');
+            div.innerHTML = this.input;
+            div.style = 'border: 1px rgb(31, 142, 255) solid; border-radius: 5px; background-color: rgb(31, 142, 255); color: white; float: right; width: fit-content; padding: 6px 10px; margin: 5px; margin-left: 30px;';
+            outer_div.append(div);
+            document.getElementById("chat-history").append(outer_div);
+
+            let params = new FormData();
+            params.append("msg", this.input);
+            this.input = '';
+            this.$axios({
+              method: 'post',
+              url: '/consult/online',
+              data: params
+            }).then(res => {
+              outer_div = document.createElement('div');
+              outer_div.style = 'width: 100%; overflow: auto;';
+              div = document.createElement('div');
+              div.innerHTML = res.data;
+              div.style = 'border: 1px rgb(235, 237, 240) solid; border-radius: 5px; background-color: rgb(235, 237, 240); float: left; width: fit-content; padding: 6px 10px; margin: 5px; margin-right: 30px;';
+              outer_div.append(div);
+              document.getElementById("chat-history").append(outer_div);
+            }).catch(error => {
+              console.log(error);
+            });
+            document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
+          }
         },
         chooseCharacter(){
           if(this.characterChosen == 1) {
@@ -113,14 +137,14 @@
     background-color: #fff;
     border: 1px rgb(180, 180, 180) solid;
     border-radius: 5px;
+    overflow: auto;
   }
 
   #chat-history {
-    margin-left: 20px;
-    margin-right: 20px;
+    margin: 15px;
     white-space: pre-line;
   }
-  
+
   #input {
     width: 100%;
     height: 80%;
@@ -138,7 +162,7 @@
     text-align: center;
     border-left: 1px rgb(180, 180, 180) solid;
     border-radius: 5px;
-    background-color: rgb(225, 243, 255);
+    background-color: rgb(245, 247, 250);
   }
 
   #name-box {
