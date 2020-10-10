@@ -14,18 +14,20 @@ import KnowledgeExploration from "../components/DeepLearning/KnowledgeExploratio
 
 import knowledgeGraph from "../pages/knowledgeGraph";
 
-import QA from "../pages/QA";
-import Questions from "../components/QA/Questions";
-import QuestionDetail from "../components/QA/QuestionDetail";
-
-import my from "../pages/my";
-
-import consult from "../pages/consult";
+import medicalArchivePreprocess from "../pages/medicalArchivePreprocess";
 
 import autoDiagnosis from "../pages/autoDiagnosis";
 import UploadMedicalRecords from "../components/AutoDiagnosis/Uploadmedicalrecords";
 import MachineDiagnosis from "../components/AutoDiagnosis/MachineDiagnosis";
 import SubmitQuestions from "../components/AutoDiagnosis/SubmitQuestions";
+
+import QA from "../pages/QA";
+import Questions from "../components/QA/Questions";
+import QuestionDetail from "../components/QA/QuestionDetail";
+
+import consult from "../pages/consult";
+
+import my from "../pages/my";
 
 
 
@@ -91,36 +93,9 @@ const router = new Router({
         keepAlive: true
       }
     }, {
-      path: '/QA',
-      component: QA,
-      children: [
-        {
-          path: '',
-          redirect: 'questions'
-        }, {
-          path: 'questions',
-          name: 'Questions',
-          component: Questions,
-          meta: {
-            keepAlive: true
-          }
-        }, {
-          path: 'questionDetail/:id',
-          name: 'QuestionDetail',
-          component: QuestionDetail
-        }
-      ]
-    }, {
-      path: '/my',
-      name: 'my',
-      component: my,
-      meta: {
-        keepAlive: true
-      }
-    }, {
-      path: '/consult',
-      name: 'consult',
-      component: consult,
+      path: '/medicalArchivePreprocess',
+      name: 'medicalArchivePreprocess',
+      component: medicalArchivePreprocess,
       meta: {
         keepAlive: true
       }
@@ -148,6 +123,40 @@ const router = new Router({
           component: SubmitQuestions
         }
       ]
+    }, {
+      path: '/QA',
+      component: QA,
+      children: [
+        {
+          path: '',
+          redirect: 'questions'
+        }, {
+          path: 'questions',
+          name: 'Questions',
+          component: Questions,
+          meta: {
+            keepAlive: true
+          }
+        }, {
+          path: 'questionDetail/:id',
+          name: 'QuestionDetail',
+          component: QuestionDetail
+        }
+      ]
+    }, {
+      path: '/consult',
+      name: 'consult',
+      component: consult,
+      meta: {
+        keepAlive: true
+      }
+    }, {
+      path: '/my',
+      name: 'my',
+      component: my,
+      meta: {
+        keepAlive: true
+      }
     }
   ]
 });

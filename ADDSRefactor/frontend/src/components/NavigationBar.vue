@@ -1,9 +1,9 @@
 <template>
   <el-header height="80px">
     <div>
-      <div class="nav-left">
+      <!-- <div class="nav-left">
         <img src="../assets/logo.jpg" height="79" alt="LOGO" @click="goToMainPage">
-      </div>
+      </div> -->
       <div class="nav-center">
         <ul>
           <li v-for="(list) in headerList" :key="list.id">
@@ -27,11 +27,12 @@
             return {
                 headerList: [
                     {id: '1', path: '/deepLearning', title: 'Deep Learning'},
-                    {id: '2', path: '/knowledgeGraph', title: 'Knowledge Graph'},
-                    {id: '3', path: '/QA', title: 'Q&A'},
-                    {id: '4', path: '/consult', title: 'Consult'},
-                    {id: '5', path: '/my', title: 'My'},
-                    {id: '6', path: '/autoDiagnosis', title: 'Automatic Diagnosis'}
+                    {id: '2', path: '/medicalArchivePreprocess', title: 'Medical Archive Preprocess'},
+                    {id: '3', path: '/knowledgeGraph', title: 'Knowledge Graph'},
+                    {id: '4', path: '/autoDiagnosis', title: 'Automatic Diagnosis'},
+                    {id: '5', path: '/QA', title: 'Q&A'},
+                    {id: '6', path: '/consult', title: 'Consult'},
+                    {id: '7', path: '/my', title: 'My'}
                 ],
                 isShow: false
             };
@@ -97,7 +98,7 @@
   a {
     text-decoration: none;
     display: block;
-    padding: 0 10px;
+    /* padding: 0 10px; */
     color: rgb(140, 197, 255);
     /*font-weight: bolder;*/
   }
