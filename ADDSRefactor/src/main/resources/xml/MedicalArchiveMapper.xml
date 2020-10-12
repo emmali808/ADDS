@@ -13,14 +13,15 @@
         <result column="txt_file_path" property="txtFilePath"/>
     </resultMap>
 
-<!--    <insert id="uploadKG" useGeneratedKeys="true" keyProperty="id">-->
-<!--        insert into kg_upload(user_id,kg_path,kg_name) values(#{uId},#{filePath},#{fileName})-->
-<!--        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">-->
-<!--            select  last_insert_id()-->
-<!--        </selectKey>-->
-<!--    </insert>-->
+    <insert id="uploadMedicalArchiveByUserId" useGeneratedKeys="true" keyProperty="id" parameterType="com.java.adds.entity.MedicalArchiveEntity">
+        insert into medical_archive(user_id, title, category, description, status, zip_file_path)
+        values(#{userId}, #{title}, #{category}, #{description}, #{status}, #{zipFilePath})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select  last_insert_id()
+        </selectKey>
+    </insert>
 
     <select id="getMedicalArchiveByUserId" resultMap="MedicalArchiveList">
-        select * from medical_archive where user_id=#{user_id}
+        select * from medical_archive where user_id=#{userId}
     </select>
 </mapper>

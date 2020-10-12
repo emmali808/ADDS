@@ -31,8 +31,8 @@ public class AutoDiagnosisController {
             fileName=file.getOriginalFilename();  //获取原始文件名
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             Date date = new Date();
-            String nowData = format.format(date);
-            fileName = nowData+"-"+fileName;//为了避免文件重名
+            String nowDate = format.format(date);
+            fileName = nowDate+"-"+fileName;//为了避免文件重名
 
             String filePath = dataSetsPathInServer + fileName;
 

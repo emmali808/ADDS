@@ -19,5 +19,11 @@ public interface MedicalArchiveMapper {
      * @param userId user's id
      * @return A Medical Archive ArrayList
      */
-    ArrayList<MedicalArchiveEntity> getMedicalArchiveByUserId(@Param("user_id") Long userId);
+    ArrayList<MedicalArchiveEntity> getMedicalArchiveByUserId(@Param("userId") Long userId);
+
+    /**
+     * Upload Medical Archive
+     * @param medicalArchiveEntity medical archive entity
+     */
+    void uploadMedicalArchiveByUserId(MedicalArchiveEntity medicalArchiveEntity);
 }

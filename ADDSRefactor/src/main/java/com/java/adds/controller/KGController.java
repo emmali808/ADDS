@@ -69,6 +69,22 @@ public class KGController {
         kgService.createGraph();
     }
 
+    @RequestMapping(value = "/node", method = RequestMethod.POST)
+    public Map<String, Object> searchNode(@RequestParam("node") String node)
+    {
+        return kgService.getKGByNode(node);
+    }
+
+    /**
+     * Author: XYX
+     * Get the statistics of the whole graph
+     */
+    @RequestMapping(value = "/statistics", method = RequestMethod.GET)
+    public Map<String, Object> getStatistics()
+    {
+        return kgService.getStatistics();
+    }
+
     /**
      * Author: QXL
      * Upload Knowledge-Graph
@@ -114,21 +130,5 @@ public class KGController {
         response.setStatus(200);
         res.put("success", kgId);
         return res;
-    }
-
-    @RequestMapping(value = "/node", method = RequestMethod.POST)
-    public Map<String, Object> searchNode(@RequestParam("node") String node)
-    {
-        return kgService.getKGByNode(node);
-    }
-
-    /**
-     * Author: XYX
-     * Get the statistics of the whole graph
-     */
-    @RequestMapping(value = "/statistics", method = RequestMethod.GET)
-    public Map<String, Object> getStatistics()
-    {
-        return kgService.getStatistics();
     }
 }

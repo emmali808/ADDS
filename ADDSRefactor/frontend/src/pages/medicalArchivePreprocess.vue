@@ -41,8 +41,8 @@
             :close-on-press-escape="false"
             :show-close="false">
           <el-form ref="uploadForm" :model="uploadForm" :rules="rules" label-position="left" label-width="130px">
-            <el-form-item label="Name" prop="name">
-              <el-input v-model="uploadForm.name"></el-input>
+            <el-form-item label="Title" prop="title">
+              <el-input v-model="uploadForm.title"></el-input>
             </el-form-item>
             <el-form-item label="Category" prop="category">
               <el-select v-model="uploadForm.category" placeholder="Please select category">
@@ -104,7 +104,6 @@
                   });
                 }
               }
-              console.log(res.data)
             }).catch(error => {
               console.log(error);
             });
@@ -121,7 +120,7 @@
           },
           uploadMedicalArchive(content) {
             let params = new FormData();
-            params.append("name", this.uploadForm.name);
+            params.append("title", this.uploadForm.title);
             params.append("category", this.uploadForm.category);
             params.append("desc", this.uploadForm.desc);
             params.append("file", content.file);
@@ -133,6 +132,11 @@
             }).then(res => {
               this.$refs['uploadForm'].resetFields();
               this.uploadFormVisible = false;
+              this.$message({
+                type: 'success',
+                message: 'Successully uploaded medical archive!',
+                showClose: true
+              });
               this.loadArchiveList();
             }).catch(error => {
               this.$message({
@@ -149,13 +153,13 @@
             uploadFormVisible: false,
             fileList: [],
             uploadForm: {
-              name: '',
+              title: '',
               category: 'Orthopaedic',
               desc: '',
             },
             rules: {
-              name: [
-                {required: true, message: 'Please input name', trigger: 'blur'}
+              title: [
+                {required: true, message: 'Please input title', trigger: 'blur'}
               ],
               category: [
                 {required: true, message: 'Please select category', trigger: 'blur'}

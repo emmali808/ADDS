@@ -25,4 +25,19 @@ public class MedicalArchiveService {
     public ArrayList<MedicalArchiveEntity> getMedicalArchiveByUserId(Long userId) {
         return medicalArchiveDao.getMedicalArchiveByUserId(userId);
     }
+
+    /**
+     * Upload Medical Archive
+     * @param medicalArchive medical archive
+     * @return medical archive id
+     */
+    public Long uploadMedicalArchive(MedicalArchiveEntity medicalArchive) {
+        Long medicalArchiveId = medicalArchiveDao.uploadMedicalArchiveByUserId(medicalArchive);
+        if (medicalArchiveId >= 0) {
+            return medicalArchiveId;
+        } else {
+            return -1L;
+        }
+    }
+
 }
