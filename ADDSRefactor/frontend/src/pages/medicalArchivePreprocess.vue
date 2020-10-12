@@ -11,6 +11,9 @@
         <el-main>
           <el-table
               :data="tableData" height="500" style="width: 100%;">
+            <template slot="empty">
+              <span>Loading ...</span>
+            </template>
             <el-table-column prop="title" label="Title" align="center"></el-table-column>
             <el-table-column prop="category" label="Category" align="center"></el-table-column>
             <el-table-column label="Status" align="center">
@@ -89,17 +92,19 @@
           loadArchiveList() {
             this.$axios({
               method: 'get',
-              url: '/archive/' + this.$store.state.user.id,
+              url: '/archive/doctor/' + this.$store.state.user.id,
             }).then(res => {
               this.tableData.length = 0;
               for (let row in res.data) {
                 if (res.data.hasOwnProperty(row)) {
                   this.tableData.push({
-                    value: res.data[row].id,
-                    label: res.data[row].name
+                    title: res.data[row].title,
+                    category: res.data[row].category,
+                    finished: res.data[row].status
                   });
                 }
               }
+              console.log(res.data)
             }).catch(error => {
               console.log(error);
             });
@@ -123,11 +128,12 @@
 
             this.$axios({
               method: 'post',
-              url: '/archive/upload/' + this.$store.state.user.id,
+              url: '/archive/doctor/' + this.$store.state.user.id,
               data: params
             }).then(res => {
               this.$refs['uploadForm'].resetFields();
               this.uploadFormVisible = false;
+              this.loadArchiveList();
             }).catch(error => {
               this.$message({
                 type: 'error',
@@ -139,81 +145,34 @@
           }
         },
         data: function() {
-            return {
-                uploadFormVisible: false,
-                fileList: [],
-                uploadForm: {
-                    name: '',
-                    category: 'Orthopaedic',
-                    desc: '',
-                },
-                rules: {
-                    name: [
-                        {required: true, message: 'Please input name', trigger: 'blur'}
-                    ],
-                    category: [
-                        {required: true, message: 'Please select category', trigger: 'blur'}
-                    ],
-                    uploadFile: [
-                        {required: true, message: 'Please select file', trigger: 'change'}
-                    ],
-                    desc: [
-                        {required: true, message: 'Please input description', trigger: 'blur'}
-                    ]
-                },
-                tableData:[
-                    {
-                        title:"Orthopaedic dataset1",
-                        category:"Orthopaedic",
-                        finished:true
-                    },
-                    {
-                        title:"Orthopaedic dataset2",
-                        category:"Orthopaedic",
-                        finished:true
-                    },
-                    {
-                        title:"Orthopaedic dataset3",
-                        category:"Orthopaedic",
-                        finished:false
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset1",
-                        category:"Hepatobiliary surgery",
-                        finished:true
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset2",
-                        category:"Hepatobiliary surgery",
-                        finished:false
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset3",
-                        category:"Hepatobiliary surgery",
-                        finished:false
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset4",
-                        category:"Hepatobiliary surgery",
-                        finished:false
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset5",
-                        category:"Hepatobiliary surgery",
-                        finished:false
-                    },
-                    {
-                        title:"Hepatobiliary surgery dataset6",
-                        category:"Hepatobiliary surgery",
-                        finished:false
-                    }
-
-                ]
-            }
+          return {
+            uploadFormVisible: false,
+            fileList: [],
+            uploadForm: {
+              name: '',
+              category: 'Orthopaedic',
+              desc: '',
+            },
+            rules: {
+              name: [
+                {required: true, message: 'Please input name', trigger: 'blur'}
+              ],
+              category: [
+                {required: true, message: 'Please select category', trigger: 'blur'}
+              ],
+              uploadFile: [
+                {required: true, message: 'Please select file', trigger: 'change'}
+              ],
+              desc: [
+                {required: true, message: 'Please input description', trigger: 'blur'}
+              ]
+            },
+            tableData:[]
+          }
         },
-        // created() {
-        //     this.loadArchiveList();
-        // },
+        created() {
+            this.loadArchiveList();
+        },
     }
 </script>
 
