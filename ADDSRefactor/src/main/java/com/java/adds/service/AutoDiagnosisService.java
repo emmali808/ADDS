@@ -1,49 +1,28 @@
 package com.java.adds.service;
 
-import com.java.adds.controller.vo.FilterQuestionVO;
-import com.java.adds.controller.vo.QuestionAnswerVO;
-import com.java.adds.dao.DoctorDao;
-import com.java.adds.entity.DataSetsEntity;
-import com.java.adds.entity.DeepModelTaskEntity;
-import com.java.adds.entity.DoctorEntity;
-import com.java.adds.entity.QuestionEntity;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.java.adds.entity.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
+/**
+ * Auto Diagnosis Service
+ * @author XYX
+ */
 @Service
 public class AutoDiagnosisService {
-
-    @Autowired
-    OCRService ocrService;
-
     /**
-     * Diagnose
-     * @author xyx
+     * Create Knowledge Graph From Medical Archive Text
+     * @author XYX
      */
-    public void diagnose(String filePath)
+    public void createGraph(MedicalArchiveEntity medicalArchiveEntity)
     {
-        String file = "/ocr_result.txt";
 
-        this.runOCR(filePath);
-        this.createGraph(filePath + file);
     }
 
     /**
-     * Run OCR recognition to transform images in DOC file to text
-     * @author xyx
+     * Diagnose By Comparing Graphs
+     * @author XYX
      */
-    public void runOCR(String filePath)
-    {
-//        ocrService.ocrFromImagesInZippedDocxFile(filePath);
-    }
-
-    /**
-     * Create Knowledge Graph from given clinical case history text
-     * @author xyx
-     */
-    public void createGraph(String filePath)
+    public void diagnose(MedicalArchiveEntity medicalArchiveEntity)
     {
 
     }

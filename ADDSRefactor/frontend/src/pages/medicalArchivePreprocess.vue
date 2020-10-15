@@ -10,7 +10,7 @@
 
         <el-main>
           <el-table
-              :data="tableData" height="500" style="width: 100%;">
+            ref="table" :data="tableData" :max-height="tableHeight" style="width: 100%;">
             <template slot="empty">
               <span>{{ promptText }}</span>
             </template>
@@ -148,6 +148,10 @@
                 showClose: true
               });
               this.loadArchiveList();
+              this.$axios({
+                method: 'post',
+                url: '/preprocess/' + res.data['medicalArchiveId'],
+              });
             }).catch(error => {
               this.$message({
                 type: 'error',
@@ -190,12 +194,22 @@
               ]
             },
             tableData:[],
-            promptText: 'Loading ...'
+            promptText: 'Loading ...',
+            tableHeight: 200,
           }
         },
         created() {
-            this.loadArchiveList();
+          this.loadArchiveList();
         },
+        mounted() {
+          this.$nextTick(function () {
+              this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 190;
+              let self = this;
+              window.onresize = function() {
+                  self.tableHeight = window.innerHeight - self.$refs.table.$el.offsetTop - 190;
+              }
+          });
+        }
     }
 </script>
 

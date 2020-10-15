@@ -97,7 +97,7 @@ const router = new Router({
       name: 'medicalArchivePreprocess',
       component: medicalArchivePreprocess,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     }, {
       path: '/autoDiagnosis',
@@ -116,7 +116,10 @@ const router = new Router({
         }, {
           path: 'machineDiagnosis',
           name: 'MachineDiagnosis',
-          component: MachineDiagnosis
+          component: MachineDiagnosis,
+          meta: {
+            keepAlive: true
+          }
         }, {
           path: 'submitQuestions',
           name: 'SubmitQuestions',

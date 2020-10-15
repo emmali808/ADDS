@@ -6,7 +6,6 @@ import com.java.adds.entity.MedicalArchiveEntity;
 import com.java.adds.utils.FileUtil;
 import com.java.adds.utils.PythonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +28,6 @@ public class OCRService {
      * ocr recognize images in a zipped docx file and create a text file
      * @author XYX
      */
-    @Async
     public void ocrMedicalArchive(MedicalArchiveEntity medicalArchive)
     {
         String zipFilePath = medicalArchive.getZipFilePath();

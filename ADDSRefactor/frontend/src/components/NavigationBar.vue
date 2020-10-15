@@ -47,6 +47,7 @@
                     cancelButtonText: 'Cancel',
                     type: 'warning'
                 }).then(() => {
+                    window.location.reload();
                     this.$store.commit('clearUserInfo');
                     this.$router.push('/');
                     this.$notify({

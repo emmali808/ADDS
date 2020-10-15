@@ -75,8 +75,13 @@ public class MedicalArchiveController {
         medicalArchive.setStatus(false);
 
         Long medicalArchiveId = medicalArchiveService.uploadMedicalArchive(medicalArchive);
-        response.setStatus(200);
-        res.put("success", medicalArchiveId);
+        if (medicalArchiveId >= 0) {
+            response.setStatus(200);
+            res.put("medicalArchiveId", medicalArchiveId);
+        } else {
+            response.setStatus(502);
+            res.put("error", "数据库写入失败");
+        }
         return res;
     }
 

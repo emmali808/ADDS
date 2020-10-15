@@ -1,46 +1,76 @@
 <template>
   <el-container id="container" direction="vertical">
-    <div id="browseSection">File Upload: </div>
-    <div id="descriptionSection">Description: </div>
-    <textarea id="textArea" rows="10" cols="80"></textarea>
-
-    <el-upload
-      ref="upload"
-      action="http://127.0.0.1:8080/diagnosis/upload"
-      accept=".zip"
-      :file-list="fileList"
-      :limit="1"
-      :auto-upload="false">
-      
-      <el-button slot="trigger" size="small" type="primary" id="browseBtn">Browse</el-button>
-      <el-button size="small" type="primary" @click="uploadFile" id="submitBtn">Submit</el-button>
-    </el-upload>
-    <!-- <el-button  size="small" type="primary" @click="create" id="create">create graph</el-button> -->
-
+    <el-form ref="uploadForm" :model="uploadForm" label-position="left" label-width="100px">
+      <el-form-item label="File Upload:" prop="uploadFile">
+        <el-upload
+          ref="upload"
+          action=""
+          accept=".zip"
+          :multiple="false"
+          :file-list="fileList"
+          :show-file-list="true"
+          :http-request="uploadMedicalArchive"
+          :auto-upload="false">
+          <el-button slot="trigger" size="small" type="primary">Browse</el-button>
+        </el-upload>
+      </el-form-item>
+      <el-form-item label="Description:" prop="desc">
+        <el-input type="textarea" :rows="6" v-model="uploadForm.desc"></el-input>
+      </el-form-item>
+    </el-form>
+    <div id="footer">
+      <el-button size="small" type="primary" @click="upload">Submit</el-button>
+    </div>
   </el-container>
 </template>
 
 <script>
     export default {
-      name: "UploadMedicalRecords",
+      name: 'UploadMedicalRecords',
       data() {
         return {
+          uploadForm: {
+            desc: '',
+          },
           fileList: [],
-          // headers: {Token: sessionStorage.getItem("addsCurrentUserToken")}
+          // headers: {Token: sessionStorage.getItem('addsCurrentUserToken')}
         }
       },
       methods: {
-        uploadFile: function(params){
+        upload() {
           this.$refs.upload.submit();
         },
-        // create() {
-        //   this.$axios({
-        //       method: 'get',
-        //       url: 'http://127.0.0.1:8080/kg/createGraph'
-        //   }).catch(error => {
-        //       console.log(error);
-        //   });
-        // },
+        uploadMedicalArchive(content) {
+          let params = new FormData();
+          params.append('title', 'Patient ' + this.$store.state.user.id + ' Medical Archive');
+          params.append('category', 'N/A');
+          params.append('desc', this.uploadForm.desc);
+          params.append('file', content.file);
+
+          this.$axios({
+            method: 'post',
+            url: '/archive/user/' + this.$store.state.user.id,
+            data: params
+          }).then(res => {
+            this.$refs['uploadForm'].resetFields();
+            this.$message({
+              type: 'success',
+              message: 'Successully uploaded medical archive!',
+              showClose: true
+            });
+            this.$axios({
+              method: 'post',
+              url: '/diagnosis/' + res.data['medicalArchiveId'],
+            });
+          }).catch(error => {
+            this.$message({
+              type: 'error',
+              message: 'Failed to upload! Check console.',
+              showClose: true
+            });
+            console.log(error);
+          });
+        },
       }
     }
 </script>
@@ -48,37 +78,12 @@
 <style scoped>
   #container {
     position: fixed;
-    top: 80px;
-    left: 260px;
-  }
-
-  #browseSection {
-    margin-left: 40px;
-    margin-top: 30px;
-  }
-
-  #descriptionSection {
-    margin-left: 40px;
-    margin-top: 40px;
-  }
-
-  #textArea {
+    top: 100px;
+    left: 300px;
     width: 600px;
-    height: 150px;
-    margin-left: 40px;
-    margin-top: 5px;
   }
 
-  #browseBtn {
-    position: relative;
-    left: 140px;
-    top: -245px;
+  #footer {
+    text-align: center;
   }
-
-  #submitBtn {
-    position: relative;
-    left: 230px;
-    top: 40px;
-  }
-
 </style>

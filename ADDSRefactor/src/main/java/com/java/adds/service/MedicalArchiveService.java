@@ -37,7 +37,6 @@ public class MedicalArchiveService {
     public Long uploadMedicalArchive(MedicalArchiveEntity medicalArchive) {
         Long medicalArchiveId = medicalArchiveDao.uploadMedicalArchiveByUserId(medicalArchive);
         if (medicalArchiveId >= 0) {
-            ocrService.ocrMedicalArchive(medicalArchive);
             return medicalArchiveId;
         } else {
             return -1L;
