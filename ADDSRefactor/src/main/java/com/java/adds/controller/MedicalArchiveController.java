@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.soap.Name;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -40,6 +39,7 @@ public class MedicalArchiveController {
      */
     @RequestMapping(value = "/doctor/{doctorId}", method = RequestMethod.GET)
     public ArrayList<MedicalArchiveEntity> getArchiveList(@PathVariable("doctorId") Long doctorId) {
+        //todo: implement vo for front end
         return medicalArchiveService.getMedicalArchiveByUserId(doctorId);
     }
 
@@ -51,12 +51,8 @@ public class MedicalArchiveController {
     public Map<String, Object> uploadMedicalArchive(HttpServletResponse response, @RequestParam("file") MultipartFile file, @RequestParam("title") String title, @RequestParam("category") String category, @RequestParam("desc") String desc, @PathVariable Long doctorId) {
         Map<String, Object> res = new HashMap<>();
 
-        String fileName = file.getOriginalFilename();
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        Date date = new Date();
-        String currentTime = format.format(date);
-        fileName = doctorId.toString() + currentTime + fileName;
-        String filePath = fileConfig.getKgFilePath() + fileName;
+        String fileName = fileUtil.getFileNameWithTimeStamp(doctorId.toString(), file.getOriginalFilename());
+        String filePath = fileConfig.getMedicalArchiveFilePath() + fileName;
         File dest = new File(filePath);
         if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdir();
@@ -77,6 +73,7 @@ public class MedicalArchiveController {
         medicalArchive.setDescription(desc);
         medicalArchive.setZipFilePath(filePath);
         medicalArchive.setStatus(false);
+
         Long medicalArchiveId = medicalArchiveService.uploadMedicalArchive(medicalArchive);
         response.setStatus(200);
         res.put("success", medicalArchiveId);

@@ -26,4 +26,10 @@ public interface MedicalArchiveMapper {
      * @param medicalArchiveEntity medical archive entity
      */
     void uploadMedicalArchiveByUserId(MedicalArchiveEntity medicalArchiveEntity);
+
+    /**
+     * Update Medical Archive
+     * @param medicalArchiveEntity medical archive entity
+     */
+    void updateMedicalArchive(MedicalArchiveEntity medicalArchiveEntity);
 }

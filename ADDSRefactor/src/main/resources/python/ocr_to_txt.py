@@ -9,10 +9,10 @@ import socket
 
 
 
-def ocr_to_txt(case_img, dir_path):
+def ocr_to_txt(case_img, dir_path, file_name):
     payload = "image=img"
 
-    url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=24.f8b838647d836a90c3c5310d84d53a6b.2592000.1596626132.282335-21160588'
+    url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=24.ee6055b798485612927e2379dee6acd8.2592000.1605290408.282335-21160588'
 
     f = open(case_img, 'rb')
     img = base64.b64encode(f.read())
@@ -28,7 +28,7 @@ def ocr_to_txt(case_img, dir_path):
     data = json.loads(content.decode("utf-8"))
 
     if data['words_result_num']>0:
-        case_txt=os.path.join(dir_path,"ocr_result.txt")
+        case_txt=os.path.join(dir_path, file_name)
 
         f=open(case_txt,'a+')
         f.write('\n')
@@ -65,7 +65,8 @@ def reorder(list):
     return list.sort()
 
 if __name__ == '__main__':
-    dir_path = sys.argv[-1]
+    dir_path = sys.argv[-2]
+    file_name = sys.argv[-1]
     print("ocr to txt!")
 
 
@@ -74,9 +75,9 @@ if __name__ == '__main__':
 
     for file in file_list:
         try:
-            ocr_to_txt(file, dir_path)
+            ocr_to_txt(file, dir_path, file_name)
         except:
-            pass
+            print("failed to ocr")
         continue
     print("finish ocr")
     

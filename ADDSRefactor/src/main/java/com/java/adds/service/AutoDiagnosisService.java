@@ -36,9 +36,7 @@ public class AutoDiagnosisService {
      */
     public void runOCR(String filePath)
     {
-        ocrService.runPython("unzip.py", filePath);
-        ocrService.runPython("extra_png_from_word.py", filePath);
-        ocrService.runPython("ocr_to_txt.py", filePath);
+//        ocrService.ocrFromImagesInZippedDocxFile(filePath);
     }
 
     /**

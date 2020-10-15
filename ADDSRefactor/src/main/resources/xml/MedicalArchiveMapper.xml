@@ -24,4 +24,10 @@
     <select id="getMedicalArchiveByUserId" resultMap="MedicalArchiveList">
         select * from medical_archive where user_id=#{userId}
     </select>
+
+    <update id="updateMedicalArchive" parameterType="com.java.adds.entity.MedicalArchiveEntity">
+        update medical_archive
+        set status=#{status}, txt_file_path=#{txtFilePath}
+        where id=#{id}
+    </update>
 </mapper>

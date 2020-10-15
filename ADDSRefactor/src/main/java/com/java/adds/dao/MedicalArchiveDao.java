@@ -36,4 +36,14 @@ public class MedicalArchiveDao {
         medicalArchiveMapper.uploadMedicalArchiveByUserId(medicalArchive);
         return medicalArchive.getId();
     }
+
+    /**
+     * Update Medical Archive
+     * @param medicalArchive medical archive
+     * @return KG id
+     */
+    public Long updateMedicalArchive(MedicalArchiveEntity medicalArchive) {
+        medicalArchiveMapper.updateMedicalArchive(medicalArchive);
+        return medicalArchive.getId();
+    }
 }

@@ -17,6 +17,9 @@ public class MedicalArchiveService {
     @Autowired
     private MedicalArchiveDao medicalArchiveDao;
 
+    @Autowired
+    private OCRService ocrService;
+
     /**
      * Get Medical Archive By User's Id
      * @param userId user's id
@@ -34,10 +37,24 @@ public class MedicalArchiveService {
     public Long uploadMedicalArchive(MedicalArchiveEntity medicalArchive) {
         Long medicalArchiveId = medicalArchiveDao.uploadMedicalArchiveByUserId(medicalArchive);
         if (medicalArchiveId >= 0) {
+            ocrService.ocrMedicalArchive(medicalArchive);
             return medicalArchiveId;
         } else {
             return -1L;
         }
     }
 
+    /**
+     * Update Medical Archive
+     * @param medicalArchive medical archive
+     * @return medical archive id
+     */
+    public Long updateMedicalArchive(MedicalArchiveEntity medicalArchive) {
+        Long medicalArchiveId = medicalArchiveDao.updateMedicalArchive(medicalArchive);
+        if (medicalArchiveId >= 0) {
+            return medicalArchiveId;
+        } else {
+            return -1L;
+        }
+    }
 }

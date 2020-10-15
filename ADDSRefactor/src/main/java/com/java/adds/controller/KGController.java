@@ -93,11 +93,8 @@ public class KGController {
     public Map<String, Object> uploadKG(HttpServletResponse response, @RequestParam("file") MultipartFile file, @RequestParam("name") String name, @RequestParam("desc") String desc, @PathVariable Long doctorId) {
         Map<String, Object> res = new HashMap<>();
 
-        String fileName = file.getOriginalFilename();
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        Date date = new Date();
-        String currentTime = format.format(date);
-        fileName = doctorId.toString() + currentTime + fileName;
+        String fileName = fileUtil.getFileNameWithTimeStamp(doctorId.toString(), file.getOriginalFilename());
+
         String filePath = fileConfig.getKgFilePath() + fileName;
         File dest = new File(filePath);
         if (!dest.getParentFile().exists()) {

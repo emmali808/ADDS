@@ -13,6 +13,7 @@ def extra_png_from_word(path):
 		for ffname in f.namelist():
 			f.extract(ffname, os.path.split(path)[0])   #解压文件
 		f.close()
+		os.remove(newname)
 
 
 def find_file(path, ext, file_list=[]):

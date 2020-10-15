@@ -1,5 +1,6 @@
 package com.java.adds.controller;
 
+import com.java.adds.config.UploadFileConfig;
 import com.java.adds.service.AutoDiagnosisService;
 import com.java.adds.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +21,18 @@ public class AutoDiagnosisController {
     @Autowired
     AutoDiagnosisService autoDiagnosisService;
 
-    @Value("H:\\upload\\")
-    String dataSetsPathInServer;
+    @Autowired
+    FileUtil fileUtil;
+
+    @Autowired
+    UploadFileConfig fileConfig;
 
     @PostMapping("upload")
     public void uploadRecords(HttpServletResponse httpServletResponse, @RequestParam MultipartFile file)
     {
-        String fileName;
         try {
-            fileName=file.getOriginalFilename();  //获取原始文件名
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-            Date date = new Date();
-            String nowDate = format.format(date);
-            fileName = nowDate+"-"+fileName;//为了避免文件重名
-
-            String filePath = dataSetsPathInServer + fileName;
+            String fileName = fileUtil.getFileNameWithTimeStamp("", file.getOriginalFilename());
+            String filePath = fileConfig.getMedicalArchiveFilePath() + fileName;
 
             File dest=new File(filePath);
             if(!dest.getParentFile().exists()){
@@ -43,7 +41,7 @@ public class AutoDiagnosisController {
             file.transferTo(dest);  //将文件保存到服务器
 //          make records in database
 
-            autoDiagnosisService.diagnose(dataSetsPathInServer);
+            autoDiagnosisService.diagnose(fileConfig.getMedicalArchiveFilePath());
 
         } catch (IOException e) {
             httpServletResponse.setStatus(302,"文件上传失败");

@@ -1,34 +1,50 @@
 package com.java.adds.service;
 
+import com.java.adds.config.UploadFileConfig;
+import com.java.adds.dao.MedicalArchiveDao;
+import com.java.adds.entity.MedicalArchiveEntity;
+import com.java.adds.utils.FileUtil;
+import com.java.adds.utils.PythonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 @Service
 public class OCRService {
 
-    /**
-     * run Python scripts
-     * @author xyx
-     * @return void
-     */
-    public void runPython(String pythonFile, String ocrFilePath){
-        String pythonPath = this.getClass().getResource("/python/").getPath();
+    @Autowired
+    PythonUtil pythonUtil;
 
-        try {
-            String[] args = new String[] { "python", pythonPath.substring(1) + pythonFile, ocrFilePath};
-            Process proc = Runtime.getRuntime().exec(args);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
-            }
-            in.close();
-            proc.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Autowired
+    FileUtil fileUtil;
+
+    @Autowired
+    UploadFileConfig fileConfig;
+
+    @Autowired
+    MedicalArchiveDao medicalArchiveDao;
+
+
+    /**
+     * ocr recognize images in a zipped docx file and create a text file
+     * @author XYX
+     */
+    @Async
+    public void ocrMedicalArchive(MedicalArchiveEntity medicalArchive)
+    {
+        String zipFilePath = medicalArchive.getZipFilePath();
+        String doctorId = medicalArchive.getUserId().toString();
+        String title = medicalArchive.getTitle().replace(' ', '_') + ".txt";
+        String txtFileName = fileUtil.getFileNameWithTimeStamp(doctorId, title);
+
+        //todo: unzip unique file into unique folder, extract and ocr from unique folder into unique path
+        pythonUtil.runPython("unzip.py", fileConfig.getMedicalArchiveFilePath());
+        pythonUtil.runPython("extra_png_from_word.py", fileConfig.getMedicalArchiveFilePath());
+        pythonUtil.runPython("ocr_to_txt.py", fileConfig.getMedicalArchiveFilePath(), txtFileName);
+
+        String txtFilePath = fileConfig.getMedicalArchiveFilePath() + txtFileName;
+        medicalArchive.setTxtFilePath(txtFilePath);
+        medicalArchive.setStatus(true);
+        medicalArchiveDao.updateMedicalArchive(medicalArchive);
     }
 }

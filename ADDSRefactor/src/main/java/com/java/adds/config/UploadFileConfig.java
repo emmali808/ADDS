@@ -21,8 +21,11 @@ public class UploadFileConfig extends WebMvcConfigurerAdapter {
     @Value("C://Users//302//Desktop//addsFileUploadTesting//")
     String dataSetsPathInServer;  //在服务器上存储的位置
 
-    @Value("///H:/upload/")
+    @Value("H:/Upload/")
     String kgFilePath;
+
+    @Value("H:/Upload/")
+    String medicalArchiveFilePath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -399,5 +401,21 @@ public class FileUtil {
         }
         workbook.write(outputStream);
         workbook.close();
+    }
+
+    /**
+     * Create File Name With Time Stamp
+     * @param prefix prefix
+     * @param suffix suffix
+     * @return file name
+     * @author XYX
+     */
+    public String getFileNameWithTimeStamp(String prefix, String suffix)
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        Date date = new Date();
+        String currentTime = format.format(date);
+        String fileName = prefix + '_' + currentTime + '_' + suffix;
+        return fileName;
     }
 }
