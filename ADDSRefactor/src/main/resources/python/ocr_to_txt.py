@@ -3,6 +3,7 @@ import urllib
 import urllib.request
 import json
 import base64
+import shutil
 import time
 import os
 import socket
@@ -79,6 +80,9 @@ if __name__ == '__main__':
         except:
             print("failed to ocr")
         continue
+
+    unzip_path = os.path.join(dir_path, 'unzipped')
+    shutil.rmtree(unzip_path)
     print("finish ocr")
     
     

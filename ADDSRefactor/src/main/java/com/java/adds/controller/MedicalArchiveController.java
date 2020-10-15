@@ -35,23 +35,23 @@ public class MedicalArchiveController {
 
     /**
      * Author: XYX
-     * Get Medical Archive List By Doctor's Id
+     * Get Medical Archive List By User Id
      */
-    @RequestMapping(value = "/doctor/{doctorId}", method = RequestMethod.GET)
-    public ArrayList<MedicalArchiveEntity> getArchiveList(@PathVariable("doctorId") Long doctorId) {
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
+    public ArrayList<MedicalArchiveEntity> getArchiveList(@PathVariable("userId") Long userId) {
         //todo: implement vo for front end
-        return medicalArchiveService.getMedicalArchiveByUserId(doctorId);
+        return medicalArchiveService.getMedicalArchiveByUserId(userId);
     }
 
     /**
      * Author: XYX
      * Upload Medical Archive
      */
-    @RequestMapping(value = "/doctor/{doctorId}", method = RequestMethod.POST)
-    public Map<String, Object> uploadMedicalArchive(HttpServletResponse response, @RequestParam("file") MultipartFile file, @RequestParam("title") String title, @RequestParam("category") String category, @RequestParam("desc") String desc, @PathVariable Long doctorId) {
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.POST)
+    public Map<String, Object> uploadMedicalArchive(HttpServletResponse response, @RequestParam("file") MultipartFile file, @RequestParam("title") String title, @RequestParam("category") String category, @RequestParam("desc") String desc, @PathVariable Long userId) {
         Map<String, Object> res = new HashMap<>();
 
-        String fileName = fileUtil.getFileNameWithTimeStamp(doctorId.toString(), file.getOriginalFilename());
+        String fileName = fileUtil.getFileNameWithTimeStamp(userId.toString(), file.getOriginalFilename());
         String filePath = fileConfig.getMedicalArchiveFilePath() + fileName;
         File dest = new File(filePath);
         if (!dest.getParentFile().exists()) {
@@ -67,7 +67,7 @@ public class MedicalArchiveController {
         }
 
         MedicalArchiveEntity medicalArchive = new MedicalArchiveEntity();
-        medicalArchive.setUserId(doctorId);
+        medicalArchive.setUserId(userId);
         medicalArchive.setTitle(title);
         medicalArchive.setCategory(category);
         medicalArchive.setDescription(desc);
@@ -84,7 +84,7 @@ public class MedicalArchiveController {
      * Author: XYX
      * Download Medical Archive By Archive's Id
      */
-    @RequestMapping(value = "/{archiveId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/download/{archiveId}", method = RequestMethod.GET)
     public Map<String, Object> downloadMedicalArchive(@PathVariable("archiveId") Long archiveId, HttpServletResponse response) {
         Map<String, Object> res = new HashMap<>();
 

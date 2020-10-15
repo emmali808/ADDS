@@ -12,7 +12,7 @@
           <el-table
               :data="tableData" height="500" style="width: 100%;">
             <template slot="empty">
-              <span>Loading ...</span>
+              <span>{{ promptText }}</span>
             </template>
             <el-table-column prop="title" label="Title" align="center"></el-table-column>
             <el-table-column prop="category" label="Category" align="center"></el-table-column>
@@ -98,7 +98,7 @@
           loadArchiveList() {
             this.$axios({
               method: 'get',
-              url: '/archive/doctor/' + this.$store.state.user.id,
+              url: '/archive/user/' + this.$store.state.user.id,
             }).then(res => {
               this.tableData.length = 0;
               for (let row in res.data) {
@@ -110,6 +110,9 @@
                     id: res.data[row].id
                   });
                 }
+              }
+              if (res.data.length == 0) {
+                this.promptText = 'No Medical Archive'
               }
             }).catch(error => {
               console.log(error);
@@ -134,7 +137,7 @@
 
             this.$axios({
               method: 'post',
-              url: '/archive/doctor/' + this.$store.state.user.id,
+              url: '/archive/user/' + this.$store.state.user.id,
               data: params
             }).then(res => {
               this.$refs['uploadForm'].resetFields();
@@ -157,7 +160,7 @@
           downloadArchive(row) {
             let link = document.createElement('a');
             link.style.display = 'none';
-            link.href = window.location.origin + this.$axios.defaults.baseURL + '/archive/' + row;
+            link.href = window.location.origin + this.$axios.defaults.baseURL + '/archive/download/' + row;
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -186,7 +189,8 @@
                 {required: true, message: 'Please input description', trigger: 'blur'}
               ]
             },
-            tableData:[]
+            tableData:[],
+            promptText: 'Loading ...'
           }
         },
         created() {
