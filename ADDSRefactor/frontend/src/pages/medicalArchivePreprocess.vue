@@ -200,8 +200,4 @@
     position: relative;
     top: 110px;
   }
-
-  #paginator {
-    text-align: center;
-  }
 </style>
