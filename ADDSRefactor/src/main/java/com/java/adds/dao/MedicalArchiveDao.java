@@ -46,4 +46,13 @@ public class MedicalArchiveDao {
         medicalArchiveMapper.updateMedicalArchive(medicalArchive);
         return medicalArchive.getId();
     }
+
+    /**
+     * Get Medical Archive By Id
+     * @param archiveId medical archive id
+     * @return medical archive id
+     */
+    public MedicalArchiveEntity getMedicalArchiveById(Long archiveId) {
+        return medicalArchiveMapper.getMedicalArchiveById(archiveId);
+    }
 }

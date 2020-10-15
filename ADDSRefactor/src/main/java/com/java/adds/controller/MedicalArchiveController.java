@@ -5,15 +5,15 @@ import com.java.adds.entity.MedicalArchiveEntity;
 import com.java.adds.service.MedicalArchiveService;
 import com.java.adds.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,4 +79,36 @@ public class MedicalArchiveController {
         res.put("success", medicalArchiveId);
         return res;
     }
+
+    /**
+     * Author: XYX
+     * Download Medical Archive By Archive's Id
+     */
+    @RequestMapping(value = "/{archiveId}", method = RequestMethod.GET)
+    public Map<String, Object> downloadMedicalArchive(@PathVariable("archiveId") Long archiveId, HttpServletResponse response) {
+        Map<String, Object> res = new HashMap<>();
+
+        MedicalArchiveEntity medicalArchiveEntity = medicalArchiveService.getMedicalArchiveById(archiveId);
+        if (medicalArchiveEntity == null) {
+            response.setStatus(404);
+            res.put("error", "找不到文件");
+            return res;
+        }
+
+        String filePath = medicalArchiveEntity.getTxtFilePath();
+        String[] filePathParts = filePath.split("/");
+        String fileName = filePathParts[filePathParts.length - 1];
+
+        response.addHeader("Content-Disposition","attachment;filename=" + fileName);
+        try {
+            FileCopyUtils.copy(new FileInputStream(filePath), response.getOutputStream());
+            response.setStatus(200);
+            res.put("success", medicalArchiveEntity.getId());
+        } catch (IOException e) {
+            response.setStatus(504);
+            res.put("error", "文件下载失败");
+        }
+        return res;
+    }
+
 }

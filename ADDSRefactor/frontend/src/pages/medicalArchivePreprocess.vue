@@ -26,7 +26,13 @@
             </el-table-column>
             <el-table-column label="Options" align="center">
               <template slot-scope="scope">
-                <el-button type="primary" size="small" :disabled="!scope.row.finished">Download</el-button>
+                <el-button
+                    type="primary"
+                    size="small"
+                    :disabled="!scope.row.finished"
+                    @click="downloadArchive(scope.row.id)">
+                  Download
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -100,7 +106,8 @@
                   this.tableData.push({
                     title: res.data[row].title,
                     category: res.data[row].category,
-                    finished: res.data[row].status
+                    finished: res.data[row].status,
+                    id: res.data[row].id
                   });
                 }
               }
@@ -146,6 +153,14 @@
               });
               console.log(error);
             });
+          },
+          downloadArchive(row) {
+            let link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = window.location.origin + this.$axios.defaults.baseURL + '/archive/' + row;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
           }
         },
         data: function() {

@@ -32,4 +32,11 @@ public interface MedicalArchiveMapper {
      * @param medicalArchiveEntity medical archive entity
      */
     void updateMedicalArchive(MedicalArchiveEntity medicalArchiveEntity);
+
+    /**
+     * Get Medical Archive By Archive's Id
+     * @param archiveId medical archive id
+     * @return A Medical Archive
+     */
+    MedicalArchiveEntity getMedicalArchiveById(Long archiveId);
 }

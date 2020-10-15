@@ -57,4 +57,13 @@ public class MedicalArchiveService {
             return -1L;
         }
     }
+
+    /**
+     * Get Medical Archive By Id
+     * @param archiveId medical archive id
+     * @return medical archive id
+     */
+    public MedicalArchiveEntity getMedicalArchiveById(Long archiveId) {
+        return medicalArchiveDao.getMedicalArchiveById(archiveId);
+    }
 }

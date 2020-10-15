@@ -30,4 +30,8 @@
         set status=#{status}, txt_file_path=#{txtFilePath}
         where id=#{id}
     </update>
+
+    <select id="getMedicalArchiveById" resultMap="MedicalArchiveList">
+        select * from medical_archive where id=#{archiveId}
+    </select>
 </mapper>
