@@ -53,7 +53,7 @@ public class KGService {
     }
 
     public void createGraph() {
-        File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
+        File folder = new File("E:/Coding/medical/4-medicalgraph（编码）/need to import");
         File[] fileList = folder.listFiles();
         for (int i = 0; i < fileList.length; i++) {
             System.out.println("start importing " + fileList[i]);
@@ -161,5 +161,33 @@ public class KGService {
         result.put("numOfDiseases", kgDao.getNumberOfTypeOfNodes("disease"));
         result.put("numOfDrugs", kgDao.getNumberOfTypeOfNodes("drug"));
         return result;
+    }
+
+    /**
+     * Validate if a drug node with this drug_alias exists
+     * @param drugAlias the drug_alias
+     * @return the node exists or not
+     */
+    public Boolean hasDrugWithAlias(String drugAlias) {
+        return kgDao.hasDrugWithAlias(drugAlias);
+    }
+
+    /**
+     * Validate if a disease node with this alias exists
+     * @param alias the alias
+     * @return the node exists or not
+     */
+    public Boolean hasDiseaseWithAlias(String alias) {
+        return kgDao.hasDiseaseWithAlias(alias);
+    }
+
+    /**
+     * Validate if a relation between drug and disease exists
+     * @param alias the alias of the disease
+     * @param drugAlias the alias of the drug
+     * @return the relation exists or not
+     */
+    public Boolean hasRelation(String alias, String drugAlias) {
+        return kgDao.hasRelation(alias, drugAlias);
     }
 }

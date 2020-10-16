@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -417,5 +418,30 @@ public class FileUtil {
         String currentTime = format.format(date);
         String fileName = prefix + '_' + currentTime + '_' + suffix;
         return fileName;
+    }
+
+    /**
+     * Read Lines Of File Into A List
+     * @param filePath the path of the file to be read
+     * @return lines of file content as an array list
+     * @author XYX
+     */
+    public ArrayList<String> readFileIntoList(String filePath)
+    {
+        ArrayList<String> lines = new ArrayList<>();
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(filePath));
+            String line = reader.readLine();
+            while (line != null) {
+                lines.add(line);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
     }
 }

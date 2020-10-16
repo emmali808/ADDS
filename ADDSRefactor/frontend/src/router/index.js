@@ -17,6 +17,7 @@ import knowledgeGraph from "../pages/knowledgeGraph";
 import medicalArchivePreprocess from "../pages/medicalArchivePreprocess";
 
 import autoDiagnosis from "../pages/autoDiagnosis";
+import devPage from "../pages/devPage";
 import UploadMedicalRecords from "../components/AutoDiagnosis/Uploadmedicalrecords";
 import MachineDiagnosis from "../components/AutoDiagnosis/MachineDiagnosis";
 import SubmitQuestions from "../components/AutoDiagnosis/SubmitQuestions";
@@ -160,6 +161,10 @@ const router = new Router({
       meta: {
         keepAlive: true
       }
+    }, {
+      path: '/devPage',
+      name: 'devPage',
+      component: devPage,
     }
   ]
 });

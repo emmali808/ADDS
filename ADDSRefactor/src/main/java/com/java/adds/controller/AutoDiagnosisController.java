@@ -30,7 +30,7 @@ public class AutoDiagnosisController {
     @RequestMapping(value = "/{archiveId}", method = RequestMethod.POST)
     public void autoDiagnosisMedicalArchive(@PathVariable Long archiveId) {
         MedicalArchiveEntity medicalArchiveEntity = medicalArchiveService.getMedicalArchiveById(archiveId);
-        ocrService.ocrMedicalArchive(medicalArchiveEntity);
+//        ocrService.ocrMedicalArchive(medicalArchiveEntity);
         autoDiagnosisService.createGraph(medicalArchiveEntity);
     }
 }

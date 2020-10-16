@@ -343,4 +343,39 @@ public class KGDao {
         List<Map<String, Object>> rels = new ArrayList<>();
         return map2("nodes", nodes, "links", rels);
     }
+
+    /**
+     * Validate if a drug with this alias exists
+     * @return the node exists or not
+     */
+    public Boolean hasDrugWithAlias(String drugAlias) {
+        String validateCypher =
+                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.drug_alias = \'" + drugAlias + "\' return n";
+        StatementResult result = executeCypher(validateCypher);
+        return result.hasNext();
+    }
+
+    /**
+     * Validate if a disease with this alias exists
+     * @return the node exists or not
+     */
+    public Boolean hasDiseaseWithAlias(String alias) {
+        String validateCypher =
+                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.alias = \'" + alias + "\' return n";
+        StatementResult result = executeCypher(validateCypher);
+        return result.hasNext();
+    }
+
+    /**
+     * Validate if a relation between drug and disease exists
+     * @return the relation exists or not
+     */
+    public Boolean hasRelation(String alias, String drugAlias) {
+        String validateCypher =
+                "MATCH (n:ADDSKGNode:kgId0)-[r:ADDSKGRel]-(m:ADDSKGNode:kgId0)" +
+                "WHERE n.alias = \'" + alias + "\' and m.drug_alias = \'" + drugAlias +
+                "\' return r";
+        StatementResult result = executeCypher(validateCypher);
+        return result.hasNext();
+    }
 }
