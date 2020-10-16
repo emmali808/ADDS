@@ -86,7 +86,9 @@ public class KGService {
                         while (tempString != null) {
                             Matcher aMatcher = aPattern.matcher(tempString);
                             if (aMatcher.find()) {
-                                attributes.put(aMatcher.group(1), aMatcher.group(2));
+                                if (!aMatcher.group(1).equals("count") && !aMatcher.group(1).equals("frequency")) {
+                                    attributes.put(aMatcher.group(1), aMatcher.group(2));
+                                }
                                 tempString = reader.readLine();
                             } else {
                                 kgDao.createNode(graphId, vMatcher.group(1), vMatcher.group(2), attributes);

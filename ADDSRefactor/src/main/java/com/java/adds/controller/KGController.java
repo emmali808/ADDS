@@ -69,7 +69,7 @@ public class KGController {
         kgService.createGraph();
     }
 
-    @RequestMapping(value = "/node", method = RequestMethod.POST)
+    @RequestMapping(value = "/node", method = RequestMethod.GET)
     public Map<String, Object> searchNode(@RequestParam("node") String node)
     {
         return kgService.getKGByNode(node);

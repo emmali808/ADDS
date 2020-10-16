@@ -241,7 +241,7 @@
 
               this.removeCurrentKgData();
               this.$axios({
-                  method: 'post',
+                  method: 'get',
                   url: '/kg/node',
                   data: params
               }).then(res => {
