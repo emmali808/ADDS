@@ -53,7 +53,7 @@ public class KGService {
     }
 
     public void createGraph() {
-        File folder = new File("E:/Coding/medical/4-medicalgraph（编码）/need to import");
+        File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
         File[] fileList = folder.listFiles();
         for (int i = 0; i < fileList.length; i++) {
             System.out.println("start importing " + fileList[i]);

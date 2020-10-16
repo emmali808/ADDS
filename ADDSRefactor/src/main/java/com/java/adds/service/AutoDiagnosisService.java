@@ -52,7 +52,7 @@ public class AutoDiagnosisService {
      */
     public Map extractEntity(String fileContent)
     {
-        String staticPath = this.getClass().getResource("/EntityDict/").getPath();
+        String staticPath = this.getClass().getResource("/entityDict/").getPath();
         String diseaseDictPath = staticPath.substring(1) + "DiseaseDict.txt";
         ArrayList<String> diseaseDict = fileUtil.readFileIntoList(diseaseDictPath);
         ArrayList<String> diseaseEntities = new ArrayList<>();

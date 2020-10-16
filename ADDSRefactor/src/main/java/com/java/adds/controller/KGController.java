@@ -64,7 +64,7 @@ public class KGController {
      * Author: XYX
      * Import MIMIC III graph
      */
-    @RequestMapping(value = "/createGraph", method = RequestMethod.GET)
+    @RequestMapping(value = "/createGraph", method = RequestMethod.POST)
     public void createGraph() {
         kgService.createGraph();
     }
