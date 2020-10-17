@@ -66,7 +66,7 @@ public class KGController {
      */
     @RequestMapping(value = "/createGraph", method = RequestMethod.POST)
     public void createGraph() {
-        kgService.createGraph();
+        kgService.createGraphSingular();
     }
 
     @RequestMapping(value = "/node", method = RequestMethod.GET)

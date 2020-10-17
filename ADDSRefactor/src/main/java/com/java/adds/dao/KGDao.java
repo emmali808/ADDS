@@ -229,8 +229,15 @@ public class KGDao {
         executeCypher(uploadRelCypher);
     }
 
-//upload into one graph
-    public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
+
+    /**
+     * Create Node Into The MIMIC III Graph
+     * @param kgId admission id
+     * @param uid node id
+     * @param type node type
+     * @param attributes attribute list
+     */
+    public void createNodeSingular(Long kgId, String uid, String type, Map<String, String> attributes) {
         String createNodeCypher = "MERGE (n:ADDSKGNode:kgId0 {type:\'" + type + "\'";
         for (String key : attributes.keySet())
             createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
@@ -238,28 +245,46 @@ public class KGDao {
         executeCypher(createNodeCypher);
     }
 
-    public void createRel(Long kgId, String uid1, String uid2) {
+    /**
+     * Create Relation Between Nodes In The MIMIC III Graph
+     * @param kgId admission id
+     * @param uid1 node1 id
+     * @param uid2 node2 id
+     */
+    public void createRelSingular(Long kgId, String uid1, String uid2) {
         String createRelCypher =
                 "MATCH (x:ADDSKGNode:kgId0 {uid:\'" + kgId + "_" + uid1 + "\'}), (y:ADDSKGNode:kgId0 {uid:\'" + kgId + "_" + uid2 + "\'})" +
                         "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
         executeCypher(createRelCypher);
     }
 
-//upload by different graphs
-//    public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
-//        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
-//        for (String key : attributes.keySet())
-//            createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
-//        createNodeCypher += "});";
-//        executeCypher(createNodeCypher);
-//    }
-//
-//    public void createRel(Long kgId, String uid1, String uid2) {
-//        String createRelCypher =
-//                "MATCH (x:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid2 + "\'})" +
-//                        "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
-//        executeCypher(createRelCypher);
-//    }
+    /**
+     * Create Node In An Independent Graph
+     * @param kgId graph id
+     * @param uid node id
+     * @param type node type
+     * @param attributes attribute list
+     */
+    public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
+        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
+        for (String key : attributes.keySet())
+            createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
+        createNodeCypher += "});";
+        executeCypher(createNodeCypher);
+    }
+
+    /**
+     * Create Relation Between Nodes In Independent Graph
+     * @param kgId graph id
+     * @param uid1 disease id
+     * @param uid2 drug id
+     */
+    public void createRel(Long kgId, String uid1, String uid2) {
+        String createRelCypher =
+                "MATCH (x:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid2 + "\'})" +
+                        "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
+        executeCypher(createRelCypher);
+    }
 
     /**
      * Execute Neo4j cypher

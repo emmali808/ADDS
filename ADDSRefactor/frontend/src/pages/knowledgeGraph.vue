@@ -439,8 +439,6 @@
                         content += "alias: " + d.alias + "\n"
                       } else if (d.type == "drug") {
                         content += "drug_id: " + d.drug_id + "\n"
-                        content += "count: " + d.count + "\n"
-                        content += "frequency: " + d.frequency + "\n"
                         content += "drug_alias: " + d.drug_alias + "\n"
                         content += "dose_val_rx: " + d.dose_val_rx + "\n"
                         content += "dose_unit_rx: " + d.dose_unit_rx + "\n"

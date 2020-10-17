@@ -2,6 +2,8 @@ package com.java.adds.service;
 
 import com.java.adds.dao.KGDao;
 import com.java.adds.entity.KGEntity;
+import com.java.adds.entity.MedicalArchiveEntity;
+import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +54,10 @@ public class KGService {
         }
     }
 
-    public void createGraph() {
+    /**
+     * Import All MIMIC III Data Into One Singular Graph
+     */
+    public void createGraphSingular() {
         File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
         File[] fileList = folder.listFiles();
         for (int i = 0; i < fileList.length; i++) {
@@ -91,13 +96,13 @@ public class KGService {
                                 }
                                 tempString = reader.readLine();
                             } else {
-                                kgDao.createNode(graphId, vMatcher.group(1), vMatcher.group(2), attributes);
+                                kgDao.createNodeSingular(graphId, vMatcher.group(1), vMatcher.group(2), attributes);
                                 break;
                             }
                         }
                         continue;
                     } else if (eMatcher.find()) {
-                        kgDao.createRel(graphId, eMatcher.group(1), eMatcher.group(2));
+                        kgDao.createRelSingular(graphId, eMatcher.group(1), eMatcher.group(2));
                     }
                     tempString = reader.readLine();
                 }
@@ -110,10 +115,41 @@ public class KGService {
     }
 
     /**
-     * Get Knowledge-Graph by KG id
-     * @param kgId KG id
-     * @return KG data(partial): A String-Object Map format for D3
+     * Import All MIMIC III Data Into One Singular Graph
      */
+    public Long createGraph(Map <String, ArrayList<String>> entityMap, ArrayList<Pair<Integer, Integer>> relationList, MedicalArchiveEntity medicalArchive) {
+        Long userId = medicalArchive.getUserId();
+        String kgName = medicalArchive.getTitle();
+        String kgDesc = medicalArchive.getDescription();
+        String kgFilePath = "N/A";
+        Long kgId = kgDao.uploadKGFile(userId, kgName, kgDesc, kgFilePath);
+        if (kgId >= 0) {
+            ArrayList<String> diseaseEntities = entityMap.get("diseaseEntities");
+            for (int i = 0; i < diseaseEntities.size(); i++) {
+                String disease = diseaseEntities.get(i);
+                kgDao.createNode(kgId, "disease_" + Integer.toString(i), "disease", new HashMap<String, String>() {{ put("alias", disease); }});
+            }
+
+            ArrayList<String> drugEntities = entityMap.get("drugEntities");
+            for (int i = 0; i < drugEntities.size(); i++) {
+                String drug = drugEntities.get(i);
+                kgDao.createNode(kgId, "drug_" + Integer.toString(i), "drug", new HashMap<String, String>() {{ put("drug_alias", drug); }});
+            }
+
+            for (Pair<Integer, Integer> relation : relationList) {
+                kgDao.createRel(kgId, "disease_" + relation.getKey().toString(), "drug_" + relation.getValue().toString());
+            }
+            return kgId;
+        } else {
+            return -1L;
+        }
+    }
+
+        /**
+         * Get Knowledge-Graph by KG id
+         * @param kgId KG id
+         * @return KG data(partial): A String-Object Map format for D3
+         */
     public Map<String, Object> getKGById(Long kgId) {
 //        Long nodeId = kgDao.getCentralNodeByKGId(kgId);
         Long nodeId = kgDao.getRandomAdmissionNode();
