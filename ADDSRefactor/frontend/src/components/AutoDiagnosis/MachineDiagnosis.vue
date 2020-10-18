@@ -1,251 +1,585 @@
 <template>
     <el-main>
-        <div class="title">
+        <div class="patientCase">
             <h3>Select Your Case:</h3>
-        </div>
-        <div class="option-block">
-            <el-select v-model="kgChosen" placeholder="Choose a knowledge graph">
-                <el-option-group v-for="group in kgGroupList" :key="group.label" :label="group.label">
-                    <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value">
+            <div class="option-block">
+                <el-select v-model="kgChosen" placeholder="Choose a knowledge graph" @change="loadKG">
+                    <el-option v-for="kg in kgList" :key="kg.value" :label="kg.label" :value="kg.value">
                     </el-option>
-                </el-option-group>
-            </el-select>
+                </el-select>
+            </div>
+            <div class="kg-div">
+                <div class="svg-div" ref="svgDiv1">
+                    <svg width="100%" height="100%"></svg>
+                </div>
+            </div>
         </div>
-        <div id="chartOne" :style="{height: '500px'}"></div>
-        <div class="title">
+        <div class="similarCases" ref="similarCases">
             <h3>Similar Cases:</h3>
-        </div>
-        <div id="chartTwo" :style="{height: '500px'}"></div>
-        <div class="diagnosis" style="margin-right: auto;margin-left: auto;width: 750px;text-align: left;font-size: 16px">
-            <span style="font-weight: bold">Diagnosis：</span>
-            The patient has a runny nose and may haveCold. There are several small red dots that do not protrude in the back of the head. The measured body temperature was 37.8 degrees, and the electrocardiogram results in sinus rhythm and T wave changes. It is recommended to take acetyl guitarmycin granules twice a day, one bag at a time. Pediatric heat-clearing granules, three times a day, half a bag each time.
-        </div>
-        <div class="page-nav" >
-            <a href="#" class="prev">«</a>
-            <a href="#" class="num">1</a>
-            <a href="#" class="on num">2</a>
-            <a href="#" class="num">3</a>
-            <a href="#" class="num">4</a>
-            <a href="#" class="next">»</a>
+            <div class="kg-div">
+                <div class="svg-div" ref="svgDiv2">
+                    <svg width="100%" height="100%"></svg>
+                </div>
+            </div>
+            <div class="diagnosis" style="margin-right: auto;margin-left: auto;margin-top: 10px;width: 750px;text-align: left;font-size: 16px">
+                <span style="font-weight: bold">Diagnosis：</span>
+                The patient has a runny nose and may haveCold. There are several small red dots that do not protrude in the back of the head. The measured body temperature was 37.8 degrees, and the electrocardiogram results in sinus rhythm and T wave changes. It is recommended to take acetyl guitarmycin granules twice a day, one bag at a time. Pediatric heat-clearing granules, three times a day, half a bag each time.
+            </div>
+            <div class="page-nav" >
+                <a href="#" class="prev">«</a>
+                <a href="#" class="num">1</a>
+                <a href="#" class="on num">2</a>
+                <a href="#" class="num">3</a>
+                <a href="#" class="num">4</a>
+                <a href="#" class="next">»</a>
+            </div>
         </div>
     </el-main>
 
 </template>
 
 <script type="text/ecmascript-6">
+    import * as d3 from 'd3';
+
     export default {
-        name: 'hello',
+        name: 'machineDiagnosis',
         data() {
             return {
-                msg: 'Welcome to Your Vue.js App',
-                kgGroupList: [{
-                    options: [{value:1,label: "Influenza case 1"},
-                        {value:2,label: "Influenza case 2"}]
-                }],
-                kgChosen: 1,
+                kgList: [],
+                kgChosen: '',
+                kgData1: {
+                    nodes: [],
+                    links: []
+                },
+                kgData2: {
+                    nodes: [],
+                    links: []
+                },
+                kgSvgComponents1: {
+                    svg: null,
+                    simulation: null,
+                    colors: [],
+                    linkGroup: [],
+                    linkTextGroup: [],
+                    nodeGroup: [],
+                    nodeTextGroup: []
+                },
+                kgSvgComponents2: {
+                    svg: null,
+                    simulation: null,
+                    colors: [],
+                    linkGroup: [],
+                    linkTextGroup: [],
+                    nodeGroup: [],
+                    nodeTextGroup: []
+                },
+                kgNodeBufferedMap: [],
+                kgNodeUnfoldFlag: [],
+                kgEntityInfo: {
+                    id: -1,
+                },
+                transform: '',
             }
+        },
+        created() {
+            this.loadKGList();
         },
         mounted() {
-            this.drawGraph1();
-            this.drawGraph2();
+            this.initGraph();
         },
         methods: {
+            loadKGList() {
+                this.$axios({
+                    method: 'get',
+                    url: '/kg/user/' + this.$store.state.user.id,
+                }).then(res => {
+                    this.kgList.length = 0;
+                    for (let kg in res.data) {
+                        if (res.data.hasOwnProperty(kg)) {
+                            this.kgList.push({
+                                value: res.data[kg].id,
+                                label: res.data[kg].name
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });
+            },
             loadKG() {
-                this.chartOne=true;
-            },
-            drawGraph1() {
-                let chartOne = this.$echarts.init(document.getElementById('chartOne'),'light');
-                let categories = [];
-                categories[0]={name:'DisorderOrSyndrome'};
-                categories[1]={name:'Symptom'};
-                categories[2]={name:'Finding'};
-                categories[3]={name:'LabTest'};
-                categories[4]={name:'Medication'};
-                categories[5]={name:'Value'};
-                let option = {
-                    tooltip: {
-                        formatter: function (x) {
-                            return x.data.des;
+                this.removeCurrentKgData1();
+                this.removeCurrentKgData2();
+                this.$axios({
+                    method: 'get',
+                    url: '/kg/graph/' + this.kgChosen,
+                }).then(res => {
+                    let nodes = res.data.nodes;
+                    let links = res.data.links;
+                    this.kgData1.nodes = nodes;
+                    this.kgData1.links = links;
+                    this.paintGraph1(this.kgData1, this.kgSvgComponents1);
+                    this.$refs.similarCases.style.display = "block";
+                }).catch(error => {
+                    console.log(error);
+                });
+                this.$axios({
+                    method: 'get',
+                    url: '/kg/graph',
+                }).then(res => {
+                    let nodes = res.data.nodes;
+                    let links = res.data.links;
+                    this.kgData2.nodes = nodes;
+                    this.kgData2.links = links;
+                    for (let node in nodes) {
+                        if (nodes.hasOwnProperty(node)) {
+                            this.kgNodeBufferedMap[nodes[node].id] = {
+                                id: nodes[node].id,
+                                name: nodes[node].name,
+                                childNode: [],
+                                relations: [],
+                                loadedInGraph: true
+                            };
                         }
-                    },
-                    legend: [{
-                        data: categories.map(function (a) {
-                            return a.name;
-                        }),
-                        top:'1%',
-                        center: '50%'
-                    }],
-                    series: [{
-                        type: 'graph', // 类型:关系图
-                        top: '15%',
-                        layout: 'force', //图的布局，类型为力导图
-                        symbolSize: 40, // 调整节点的大小
-                        move: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-                        edgeSymbol: ['circle', 'arrow'],
-                        edgeSymbolSize: [2, 10],
-                        force: {
-                            repulsion: 500,
-                            gravity:0.1,
-                            edgeLength: [10, 50]
-                        },
-                        draggable: true,
-                        lineStyle: {
-                            normal: {
-                                width: 2,
-                                color: '#4b565b',
-                            }
-                        },
-                        edgeLabel: {
-                            normal: {
-                                show: true,
-                                formatter: function (x) {
-                                    return x.data.name;
-                                }
-                            }
-                        },
-                        label: {
-                            normal: {
-                                show: true,
-                                // textStyle: {}
-                            }
-                        },
-                        data: [{name: 'Cold', des: 'Cold', symbolSize: 70, category: 0,},
-                            {name: ' Influenza', des: ' Influenza', symbolSize: 60, category: 1,},
-                            {name: 'Dizzy', des: 'Dizzy', symbolSize: 60, category: 1,},
-                            {name: 'Temperature', des: 'Temperature', symbolSize: 60, category: 1,},
-                            {name: 'Electrocardiogram', des: 'Electrocardiogram', symbolSize: 50, category: 3,},
-                            {name: 'Acetylkitasamycin Granules', des: 'Acetylkitasamycin Granules', symbolSize: 50, category: 4,},
-                            {name: 'One bag twice a day', des: 'One bag twice a day', symbolSize: 50, category: 5,},
-                            {name: 'Sinus rhythm, T wave change', des: 'Sinus rhythm, T wave change', symbolSize: 50, category: 5,},
-                            {name: '37.8', des: '37.8', symbolSize: 50, category: 5,},
-                            {name: 'A runny nose', des: 'A runny nose', symbolSize: 50, category: 5,}],
-                        links: [{source: 'Cold', target: ' Influenza', name: '', des: 'link01des'},
-                            {source: 'Cold', target: 'Dizzy', name: '', des: 'link02des'},
-                            {source: 'Cold', target: 'Temperature', name: '', des: 'link03des'},
-                            {source: 'Acetylkitasamycin Granules', target: 'Cold', name: '', des: 'link05des'},
-                            {source: 'Electrocardiogram', target: 'Cold', name: '', des: 'link07des'},
-                            {source: 'One bag twice a day', target: 'Acetylkitasamycin Granules', name: '', des: 'link08des'},
-                            {source: 'A runny nose', target: ' Influenza', name: '', des: 'link10des'},
-                            {source: '37.8', target: 'Temperature', name: '', des: 'link12des'},
-                            {source: 'Sinus rhythm, T wave change', target: 'Electrocardiogram', name: '', des: 'link13des'},],
-                        categories: categories,
-                    }]
-                };
-                chartOne.setOption(option);
-            },
-            drawGraph2() {
-                let chartTwo = this.$echarts.init(document.getElementById('chartTwo'),'light')
-                let categories = [];
-                categories[0]={name:'DisorderOrSyndrome'};
-                categories[1]={name:'Symptom'};
-                categories[2]={name:'Finding'};
-                categories[3]={name:'LabTest'};
-                categories[4]={name:'Medication'};
-                categories[5]={name:'Value'};
-                let option = {
-                    title: {
-                        text: 'Date:2016-06-01',
-                        left:'center'
-                    },
-                    tooltip: {
-                        formatter: function (x) {
-                            return x.data.des;
+                    }
+                    for (let link in links) {
+                        if (links.hasOwnProperty(link)) {
+                            this.kgNodeBufferedMap[links[link].source].childNode.push({
+                                id: this.kgNodeBufferedMap[links[link].target].id,
+                                name: this.kgNodeBufferedMap[links[link].target].name
+                            });
+                            this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
+                            this.kgNodeUnfoldFlag[links[link].source] = false;
+                            this.kgNodeUnfoldFlag[links[link].target] = true;
                         }
-                    },
-                    // toolbox: {
-                    //     show: true,
-                    //     feature: {
-                    //         mark: {
-                    //             show: true
-                    //         },
-                    //         // restore: {
-                    //         //     show: true
-                    //         // },
-                    //         saveAsImage: {
-                    //             show: true
-                    //         }
-                    //     }
-                    // },
-                    legend: [{
-                        data: categories.map(function (a) {
-                            return a.name;
-                        }),
-                        top:'7%',
-                        center: '50%'
-                    }],
-                    series: [{
-                        type: 'graph', // 类型:关系图
-                        top: '15%',
-                        layout: 'force', //图的布局，类型为力导图
-                        symbolSize: 40, // 调整节点的大小
-                        move: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-                        edgeSymbol: ['circle', 'arrow'],
-                        edgeSymbolSize: [2, 10],
-                        force: {
-                            repulsion: 400,
-                            gravity:0.1,
-                            edgeLength: [10, 50]
-                        },
-                        draggable: true,
-                        lineStyle: {
-                            normal: {
-                                width: 2,
-                                color: '#4b565b',
-                            }
-                        },
-                        edgeLabel: {
-                            normal: {
-                                show: true,
-                                formatter: function (x) {
-                                    return x.data.name;
-                                }
-                            }
-                        },
-                        label: {
-                            normal: {
-                                show: true,
-                                // textStyle: {}
-                            }
-                        },
-                        data: [{name: 'Cold', des: 'Cold', symbolSize: 70, category: 0,},
-                            {name: ' Influenza', des: ' Influenza', symbolSize: 60, category: 1,},
-                            {name: 'Faeces', des: 'Faeces', symbolSize: 60, category: 1,},
-                            {name: 'Temperature', des: 'Temperature', symbolSize: 60, category: 1,},
-                            {name: 'The back of the head', des: 'The back of the head', symbolSize: 60, category: 1,},
-                            {name: 'Electrocardiogram', des: 'Electrocardiogram', symbolSize: 50, category: 3,},
-                            {name: 'Acetylkitasamycin Granules', des: 'Acetylkitasamycin Granules', symbolSize: 50, category: 4,},
-                            {name: 'Xiaoer qingrening granule', des: 'Xiaoer qingrening granule', symbolSize: 50, category: 4,},
-                            {name: 'One bag twice a day', des: 'One bag twice a day', symbolSize: 50, category: 5,},
-                            {name: 'A few small red spots', des: 'A few small red spots', symbolSize: 50, category: 5,},
-                            {name: 'Sinus rhythm, T wave change', des: 'Sinus rhythm, T wave change', symbolSize: 50, category: 5,},
-                            {name: '37.8', des: '37.8', symbolSize: 50, category: 5,},
-                            {name: 'Abnormal', des: 'Abnormal', symbolSize: 50, category: 5,},
-                            {name: '1/2 bag three times a day', des: '1/2 bag three times a day', symbolSize: 50, category: 5,},
-                            {name: 'A runny nose', des: 'A runny nose', symbolSize: 50, category: 5,}],
-                        links: [{source: 'Cold', target: ' Influenza', name: '', des: 'link01des'},
-                            {source: 'Cold', target: 'Faeces', name: '', des: 'link02des'},
-                            {source: 'Cold', target: 'Temperature', name: '', des: 'link03des'},
-                            {source: 'Cold', target: 'The back of the head', name: '', des: 'link04des'},
-                            {source: 'Acetylkitasamycin Granules', target: 'Cold', name: '', des: 'link05des'},
-                            {source: 'Xiaoer qingrening granule', target: 'Cold', name: '', des: 'link06des'},
-                            {source: 'Electrocardiogram', target: 'Cold', name: '', des: 'link07des'},
-                            {source: 'One bag twice a day', target: 'Acetylkitasamycin Granules', name: '', des: 'link08des'},
-                            {source: '1/2 bag three times a day', target: 'Xiaoer qingrening granule', name: '', des: 'link09des'},
-                            {source: 'A runny nose', target: ' Influenza', name: '', des: 'link10des'},
-                            {source: 'Abnormal', target: 'Faeces', name: '', des: 'link11des'},
-                            {source: '37.8', target: 'Temperature', name: '', des: 'link12des'},
-                            {source: 'A few small red spots', target: 'The back of the head', name: '', des: 'link13des'},
-                            {source: 'Sinus rhythm, T wave change', target: 'Electrocardiogram', name: '', des: 'link13des'},],
-                        categories: categories,
-                    }]
-                };
-                chartTwo.setOption(option);
+                    }
+                    this.paintGraph2(this.kgData2, this.kgSvgComponents2);
+                }).catch(error => {
+                    console.log(error);
+                });
             },
-            toshow() {
-                let arr=["answer","none-answer"];
+            initGraph() {
+                let width = this.$refs.svgDiv1.offsetWidth;
+                let height = this.$refs.svgDiv1.offsetHeight;
+                this.kgSvgComponents1.simulation = d3.forceSimulation()
+                    .force("link", d3.forceLink().id(d => {return d.id;}))
+                    .force("charge", d3.forceManyBody().strength(100))
+                    .force("center", d3.forceCenter(width / 2, height / 2))
+                    .force("collide", d3.forceCollide(80).strength(0.2).iterations(5));
+                this.kgSvgComponents2.simulation = d3.forceSimulation()
+                    .force("link", d3.forceLink().id(d => {return d.id;}))
+                    .force("charge", d3.forceManyBody().strength(100))
+                    .force("center", d3.forceCenter(width / 2, height / 2))
+                    .force("collide", d3.forceCollide(80).strength(0.2).iterations(5));
+                this.kgSvgComponents1.colors = [
+                    '#6ca46c', '#4e88af',
+                    '#ca635f', '#d2907c',
+                    '#d6744d', '#cec255',
+                    '#b4c6e7', '#cdb4e6'
+                ];
+                this.kgSvgComponents2.colors = this.kgSvgComponents1.colors;
+                this.kgSvgComponents1.svg = d3.selectAll("svg").filter(function (d, i) { return i === 0;});
+                this.kgSvgComponents2.svg = d3.selectAll("svg").filter(function (d, i) { return i === 1;});
+                this.kgSvgComponents1.linkGroup = this.kgSvgComponents1.svg.append("g").attr("class", "links");
+                this.kgSvgComponents1.nodeGroup = this.kgSvgComponents1.svg.append("g").attr("class", "nodes");
+                this.kgSvgComponents1.nodeTextGroup = this.kgSvgComponents1.svg.append("g").attr("class", "texts");
+                this.kgSvgComponents2.linkGroup = this.kgSvgComponents2.svg.append("g").attr("class", "links");
+                this.kgSvgComponents2.nodeGroup = this.kgSvgComponents2.svg.append("g").attr("class", "nodes");
+                this.kgSvgComponents2.nodeTextGroup = this.kgSvgComponents2.svg.append("g").attr("class", "texts");
+            },
+            paintGraph1(kgData, kgSvgComponents) {
+                let svg = kgSvgComponents.svg;
+                let simulation = kgSvgComponents.simulation;
+                let colors = kgSvgComponents.colors;
 
-            }
-    },
+                svg.selectAll("*").remove();
+                let centerX = this.$refs.svgDiv1.offsetWidth / 2;
+                let centerY = this.$refs.svgDiv1.offsetHeight / 2;
+
+                let link = svg.append("g").attr("class", "links")
+                    .selectAll("line").data(kgData.links).enter().append("line")
+                    .attr("stroke-width", 1)
+                    .style("stroke", "rgba(50, 50, 50, 0.8)");
+
+                let node = svg.append("g").attr("class", "nodes")
+                    .selectAll("circle").data(kgData.nodes).enter().append("circle")
+                    .attr("cx", centerX)
+                    .attr("cy", centerY)
+                    .attr("r", d => {return 50;})
+                    .attr("fill", d => {
+                        if (d.type == "patient") {
+                            return colors[0]
+                        } else if (d.type == "admission") {
+                            return colors[1]
+                        } else if (d.type == "disease") {
+                            return colors[2]
+                        } else if (d.type == "drug") {
+                            return colors[5]
+                        }
+                    })
+                    .style("stroke", "rgba(50, 50, 50, 0.8)")
+                    .style("stroke-width", "2px")
+                    .style("cursor", "pointer")
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+                let text = svg.append("g").attr("class", "texts")
+                    .selectAll("text").data(kgData.nodes).enter().append("text")
+                    .text(d => {
+                      if (d.type == "patient") {
+                        return "patient " + d.patient_id
+                      } else if (d.type == "admission") {
+                        return "admission " + d.admission_id
+                      } else if (d.type == "disease") {
+                        return d.alias
+                      } else if (d.type == "drug") {
+                        return d.drug_alias
+                      }
+                    })
+                    .attr("x", centerX)
+                    .attr("y", centerY)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "rgba(50, 50, 50, 0.8)")
+                    .style("cursor", "pointer")
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+                    .call(this.wrap);
+                
+                
+
+                var tspan = svg.selectAll("tspan");
+
+                simulation.nodes(kgData.nodes).on("tick", ticked);
+                simulation.force("link").links(kgData.links);
+                simulation.alpha(0.1).restart();
+                svg.call(d3.zoom().on("zoom", () => {
+                    svg.selectAll("g").attr("transform", d3.event.transform);
+                }));
+                svg.on("dblclick.zoom", null);
+                function ticked() {
+                    link
+                        .attr("x1", function(d) {return d.source.x;})
+                        .attr("y1", function(d) {return d.source.y;})
+                        .attr("x2", function(d) {return d.target.x;})
+                        .attr("y2", function(d) {return d.target.y;});
+                    node
+                        .attr("cx", function(d) {return d.x;})
+                        .attr("cy", function(d) {return d.y;});
+                    text
+                        .attr("x", function(d) { return d.x; })
+                        .attr("y", function(d) { return d.y; });
+                    tspan
+                        .attr("x", function(d) { return d.x; })
+                        .attr("y", function(d) { return d.y; });
+                }
+                function dragstarted(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0.2).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
+                function dragged(d) {
+                    d.fx = d3.event.x;
+                    d.fy = d3.event.y;
+                }
+                function dragended(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                }
+            },
+            paintGraph2(kgData, kgSvgComponents) {
+                let svg = kgSvgComponents.svg;
+                let simulation = kgSvgComponents.simulation;
+                let colors = kgSvgComponents.colors;
+
+                svg.selectAll("*").remove();
+                let centerX = this.$refs.svgDiv1.offsetWidth / 2;
+                let centerY = this.$refs.svgDiv1.offsetHeight / 2;
+
+                let link = svg.append("g").attr("class", "links")
+                    .selectAll("line").data(kgData.links).enter().append("line")
+                    .attr("stroke-width", 1)
+                    .style("stroke", "rgba(50, 50, 50, 0.8)");
+
+                let tooltip = d3.select("body").select(".tooltip")
+                if (tooltip._groups[0][0] == null) {
+                    tooltip = d3.select("body").append("div")
+                    .attr("class", "tooltip")
+                    .style("display", "none")
+                    .style("text-align", "center")
+                    .style("border-radius", "4px")
+                    .style("padding", "10px 20px")
+                    .style("width", "fit-content")
+                    .style("position", "relative")                    
+                    .style("white-space", "pre");
+                }
+
+                function setTooltipContent(d) {
+                  let content = '';
+                  if (d.type == "patient") {
+                        content += "patient_id: " + d.patient_id + "\n"
+                        content += "gender: " + d.gender + "\n"
+                        content += "religion: " + d.religion + "\n"
+                        content += "ethnicity: " + d.ethnicity + "\n"
+                        content += "birth_time: " + d.birth_time + "\n"                   
+                      } else if (d.type == "admission") {
+                        content += "admission_id: " + d.admission_id + "\n"
+                        content += "admit_time: " + d.admit_time + "\n"
+                        content += "duration: " + d.duration + "\n"
+                        content += "flag: " + d.flag + "\n"
+                        content += "admit_age: " + d.admit_age + "\n"
+                      } else if (d.type == "disease") {
+                        content += "disease_id: " + d.disease_id + "\n"
+                        content += "alias: " + d.alias + "\n"
+                      } else if (d.type == "drug") {
+                        content += "drug_id: " + d.drug_id + "\n"
+                        content += "drug_alias: " + d.drug_alias + "\n"
+                        content += "dose_val_rx: " + d.dose_val_rx + "\n"
+                        content += "dose_unit_rx: " + d.dose_unit_rx + "\n"
+                      }
+                  return content;
+                }
+
+                function updateTooltip(d) {
+                    tooltip.html(setTooltipContent(d))
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - tooltip.node().getBoundingClientRect().height * 0.5) + "px");
+                }
+
+                let node = svg.append("g").attr("class", "nodes")
+                    .selectAll("circle").data(kgData.nodes).enter().append("circle")
+                    .attr("cx", centerX)
+                    .attr("cy", centerY)
+                    .attr("r", d => {return 50;})
+                    .attr("fill", d => {
+                        if (d.type == "patient") {
+                            return colors[0]
+                        } else if (d.type == "admission") {
+                            return colors[1]
+                        } else if (d.type == "disease") {
+                            return colors[2]
+                        } else if (d.type == "drug") {
+                            return colors[5]
+                        }
+                    })
+                    .style("stroke", "rgba(50, 50, 50, 0.8)")
+                    .style("stroke-width", "2px")
+                    .style("cursor", "pointer")
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+                    .on('mouseover', function (d, i) {
+                        tooltip.style("display", "block")
+                        .style("color", "rgb(20, 20, 20)")
+                        .style("background-color", "rgba(240, 240, 240, 0.95)")
+                        .style("border", "1px solid rgba(240, 240, 240, 0.95)")
+                        .style("box-shadow", "2px 2px 2px rgba(80, 80, 80, 0.6)");;
+                        updateTooltip(d);
+                    })
+                    .on('mousemove', function (d, i) {
+                        updateTooltip(d);
+                    })
+                    .on('mouseout', function (d, i) {
+                        tooltip.style("display", "none");
+                    });
+
+                node.on("click", d => {
+                    this.expand(d.id);
+                });
+
+                let text = svg.append("g").attr("class", "texts")
+                    .selectAll("text").data(kgData.nodes).enter().append("text")
+                    .text(d => {
+                      if (d.type == "patient") {
+                        return "patient " + d.patient_id
+                      } else if (d.type == "admission") {
+                        return "admission " + d.admission_id
+                      } else if (d.type == "disease") {
+                        return d.alias
+                      } else if (d.type == "drug") {
+                        return d.drug_alias
+                      }
+                    })
+                    .attr("x", centerX)
+                    .attr("y", centerY)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "rgba(50, 50, 50, 0.8)")
+                    .style("cursor", "pointer")
+                    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+                    .on('mouseover', function (d, i) {
+                        tooltip.style("display", "block")
+                        .style("color", "rgb(20, 20, 20)")
+                        .style("background-color", "rgba(240, 240, 240, 0.95)")
+                        .style("border", "1px solid rgba(240, 240, 240, 0.95)")
+                        .style("box-shadow", "2px 2px 2px rgba(80, 80, 80, 0.6)");;
+                        updateTooltip(d);
+                    })
+                    .on('mousemove', function (d, i) {
+                        updateTooltip(d);
+                    })
+                    .on('mouseout', function (d, i) {
+                        tooltip.style("display", "none");
+                    })
+                    .call(this.wrap);
+                
+                text.on("click", d => {
+                    this.expand(d.id);
+                });
+
+                var tspan = svg.selectAll("tspan");
+
+                svg.selectAll("g").attr("transform", this.transform);
+
+                simulation.nodes(kgData.nodes).on("tick", ticked);
+                simulation.force("link").links(kgData.links);
+                simulation.alpha(0.1).restart();
+                svg.call(d3.zoom().on("zoom", () => {
+                    svg.selectAll("g").attr("transform", d3.event.transform);
+                    this.transform = d3.event.transform;
+                }));
+                svg.on("dblclick.zoom", null);
+                function ticked() {
+                    link
+                        .attr("x1", function(d) {return d.source.x;})
+                        .attr("y1", function(d) {return d.source.y;})
+                        .attr("x2", function(d) {return d.target.x;})
+                        .attr("y2", function(d) {return d.target.y;});
+                    node
+                        .attr("cx", function(d) {return d.x;})
+                        .attr("cy", function(d) {return d.y;});
+                    text
+                        .attr("x", function(d) { return d.x; })
+                        .attr("y", function(d) { return d.y; });
+                    tspan
+                        .attr("x", function(d) { return d.x; })
+                        .attr("y", function(d) { return d.y; });
+                }
+                function dragstarted(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0.2).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
+                function dragged(d) {
+                    d.fx = d3.event.x;
+                    d.fy = d3.event.y;
+                }
+                function dragended(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                }
+            },
+            wrap(text) {
+                text.each(function() {
+                    var text = d3.select(this);
+                    var words = text.text().split(/\s+|\*|-/).reverse();
+                    var word;
+                    var x = text.attr("x");
+                    var y = text.attr("y");
+                    var dy = 5;
+                    var lines = [];
+                    var line = [];
+                    var lineNumber = 0;
+                    var lineHeight = 18;
+
+                    while (word = words.pop()) {
+                        line.push(word);
+                        if (line.join(" ").length > 9) {
+                            if (line.length == 1) {
+                                lines.push(line.join(" "));
+                                line.pop();
+                            } else {
+                                line.pop();
+                                lines.push(line.join(" "));
+                                line = [word];
+                            }
+                        }
+                    }
+                    if (line.length != 0) {
+                        lines.push(line.join(" "));
+                    }
+
+                    text.text(null)
+                    dy = dy + lineHeight * (1 - lines.length) * 0.5 // calculate actual offset of y
+                    for (let index = 0; index < lines.length; index++) {
+                        const element = lines[index];
+                        text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", lineNumber++ * lineHeight + dy)
+                            .text(element);
+                    }
+                })
+            },
+            expand(nodeId) {
+                this.kgEntityInfo.id = nodeId;
+                let childNode = this.kgNodeBufferedMap[nodeId].childNode;
+                if (childNode != null) {
+                  if (childNode.length === 0) {
+                    this.getRelNodes(nodeId);
+                  } else {
+                    if (this.kgNodeUnfoldFlag[this.kgEntityInfo.id]) {
+                        this.unfoldRelNodes()
+                    }
+                  }
+                }
+            },
+            getRelNodes(nodeId) {
+                if (this.kgNodeBufferedMap[nodeId].childNode.length === 0) {
+                    this.$axios({
+                        method: 'get',
+                        url: '/kg/graph/relNodes/' + nodeId,
+                    }).then(res => {
+                        let nodes = res.data.nodes;
+                        let links = res.data.links;
+                        this.kgNodeBufferedMap[nodeId].childNode = nodes;
+                        this.kgNodeBufferedMap[nodeId].relations = links;
+                        for (let node in nodes) {
+                            if (nodes.hasOwnProperty(node)) {
+                                if (this.kgNodeBufferedMap[nodes[node].id] == null) {
+                                    this.kgNodeBufferedMap[nodes[node].id] = {
+                                        id: nodes[node].id,
+                                        name: nodes[node].name,
+                                        childNode: [],
+                                        relations: [],
+                                        loadedInGraph: false
+                                    };
+                                    this.kgNodeUnfoldFlag[nodes[node].id] = true;
+                                }
+                            }
+                        }
+                        if (this.kgNodeUnfoldFlag[this.kgEntityInfo.id]) {
+                            this.unfoldRelNodes()
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    });
+                }
+            },
+            unfoldRelNodes() {
+                let newNodes = this.kgNodeBufferedMap[this.kgEntityInfo.id].childNode;
+                for (let node in newNodes) {
+                    if (newNodes.hasOwnProperty(node)) {
+                        let n = newNodes[node];
+                        if (!this.kgNodeBufferedMap[n.id].loadedInGraph) {
+                            this.kgData2.nodes.push(n);
+                            this.kgNodeBufferedMap[n.id].loadedInGraph = true;
+                        }
+                    }
+                }
+                let links = this.kgData2.links.concat(this.kgNodeBufferedMap[this.kgEntityInfo.id].relations);
+                let linkSet = new Set(links);
+                this.kgData2.links = Array.from(linkSet);
+                this.paintGraph2(this.kgData2, this.kgSvgComponents2);
+                this.kgNodeUnfoldFlag[this.kgEntityInfo.id] = false;
+            },
+            removeCurrentKgData1() {
+                this.kgData1.nodes.length = 0;
+                this.kgData1.links.length = 0;
+            },
+            removeCurrentKgData2() {
+                this.kgNodeBufferedMap.length = 0;
+                this.kgNodeUnfoldFlag.length = 0;
+                this.kgData2.nodes.length = 0;
+                this.kgData2.links.length = 0;
+                this.kgEntityInfo.id = -1;
+            },
+        }
 
     }
 
@@ -254,39 +588,28 @@
 <style scoped>
     .el-main {
         position: fixed;
-        top: 80px;
-        left: 260px;
+        top: 100px;
+        left: 300px;
         right: 30px;
         bottom: 0;
-        margin: 20px;
-        padding: 10px;
-    }
-
-    .title {
-        margin: 10px 0;
+        padding: 0;
     }
 
     .option-block {
         display: inline-block;
-        /*margin-right: 40px;*/
     }
 
     .option-block .el-select {
-        width: 400px;
+        width: 300px;
     }
-    
-    #chartOne {
-        margin: 20px 0;
-    }
-    
-    #chartTwo {
-        margin: 20px 0;
-    }
+
     .diagnosis{
-        margin: 10px 0;
+        margin: 10px;
     }
     .page-nav{
         text-align: center;
+        margin-top: 20px;
+        padding-bottom: 100px;
     }
     .page-nav a{
         margin-right: 12px;
@@ -314,5 +637,27 @@
         text-align: center;
         line-height: 32px;
         cursor: text;
+    }
+
+    .kg-div {
+        position: relative;
+        height: 500px;
+        margin: 20px 0;
+        margin-right: 50px;
+        border: 2px solid #272b30;
+        border-radius: 8px;
+    }
+
+    .svg-div {
+        width: 100%;
+        height: 100%;
+    }
+
+    svg {
+        border-radius: 5px;
+    }
+
+    .similarCases {
+        display: none;
     }
 </style>

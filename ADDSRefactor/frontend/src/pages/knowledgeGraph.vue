@@ -181,7 +181,7 @@
             loadKGList() {
                 this.$axios({
                     method: 'get',
-                    url: '/kg/doctor/' + this.$store.state.user.id,
+                    url: '/kg/user/' + this.$store.state.user.id,
                 }).then(res => {
                     this.kgGroupList[1].options.length = 0;
                     for (let kg in res.data) {
@@ -198,11 +198,9 @@
             },
             loadKG() {
               this.removeCurrentKgData();
-              // this.kgNodeMap.length = 0;
-              // this.kgNodeChildMap.length = 0;
               this.$axios({
                   method: 'get',
-                  url: '/kg/graph/' + this.kgChosen,
+                  url: '/kg/graph',
               }).then(res => {
                   let nodes = res.data.nodes;
                   let links = res.data.links;
@@ -475,7 +473,11 @@
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
-                        tooltip.style("display", "block");
+                        tooltip.style("display", "block")
+                        .style("color", "#ffffff")
+                        .style("background-color", "#303133")
+                        .style("border", "1px solid #303133")
+                        .style("box-shadow", "2px 2px 2px #202020");
                         updateTooltip(d);
                     })
                     .on('mousemove', function (d, i) {
@@ -509,7 +511,11 @@
                     .style("cursor", "pointer")
                     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
                     .on('mouseover', function (d, i) {
-                        tooltip.style("display", "block");
+                        tooltip.style("display", "block")
+                        .style("color", "#ffffff")
+                        .style("background-color", "#303133")
+                        .style("border", "1px solid #303133")
+                        .style("box-shadow", "2px 2px 2px #202020");
                         updateTooltip(d);
                     })
                     .on('mousemove', function (d, i) {

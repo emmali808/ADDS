@@ -37,18 +37,27 @@ public class KGController {
      * Author: QXL
      * Get Knowledge-Graph list by user id
      */
-    @RequestMapping(value = "/doctor/{doctorId}", method = RequestMethod.GET)
-    public ArrayList<KGEntity> getKGList(@PathVariable("doctorId") Long doctorId) {
-        return kgService.getKGListByUserId(doctorId);
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
+    public ArrayList<KGEntity> getKGList(@PathVariable("userId") Long userId) {
+        return kgService.getKGListByUserId(userId);
     }
 
     /**
      * Author: QXL
-     * Get Knowledge-Graph by KG id
+     * Get Knowledge-Graph by KG id by calculating central node
      */
     @RequestMapping(value = "/graph/{kgId}", method = RequestMethod.GET)
     public Map<String, Object> getKGById(@PathVariable("kgId") Long kgId) {
         return kgService.getKGById(kgId);
+    }
+
+    /**
+     * Author: XYX
+     * Get A Random Knowledge-Graph
+     */
+    @RequestMapping(value = "/graph", method = RequestMethod.GET)
+    public Map<String, Object> getRandomKG() {
+        return kgService.getRandomKG();
     }
 
     /**

@@ -180,6 +180,17 @@ public class KGDao {
     }
 
     /**
+     * Get Knowledge-Graph node and relational nodes by KG id
+     * @param kgId id
+     * @return KG data(partial): A String-Object Map for d3
+     */
+    public Map<String, Object> getKGById(Long kgId) {
+        List<Map<String, Object>> kgForNode = kgRepository.getNodeByKGId(kgId);
+        List<Map<String, Object>> kgForRel = kgRepository.getRelByKGId(kgId);
+        return toD3Format(kgForNode, kgForRel);
+    }
+
+    /**
      * Get Knowledge-Graph node's relational nodes by node id (without this node)
      * @param nodeId node id
      * @return KG data(partial): A String-Object Map for d3
@@ -266,7 +277,7 @@ public class KGDao {
      * @param attributes attribute list
      */
     public void createNode(Long kgId, String uid, String type, Map<String, String> attributes) {
-        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\'";
+        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId" + kgId + "{uid:\'" + uid + "\', type:\'" + type + "\', kgId:\'" + kgId + "\'";
         for (String key : attributes.keySet())
             createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
         createNodeCypher += "});";
@@ -299,6 +310,22 @@ public class KGDao {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public Map<String, Object> toD3Format(List<Map<String, Object>> kgForNode, List<Map<String, Object>> kgForRel) {
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        List<Map<String, Object>> rels = new ArrayList<>();
+
+        for (Map<String, Object> triad : kgForNode) {
+            KGNode node = (KGNode) triad.get("x");
+            nodes.add(map(node));
+        }
+
+        for (Map<String, Object> triad : kgForRel) {
+            KGRel rel = (KGRel) triad.get("r");
+            rels.add(map3("source", rel.getStartNode().getId(), "target", rel.getEndNode().getId(), "value", rel.getName()));
+        }
+        return map2("nodes", nodes, "links", rels);
     }
 
     public Map<String, Object> toD3Format(List<Map<String, Object>> kg, boolean withOriginNode) {
@@ -402,5 +429,18 @@ public class KGDao {
                 "\' return r";
         StatementResult result = executeCypher(validateCypher);
         return result.hasNext();
+    }
+
+    /**
+     * Validate if a relation between drug and disease exists
+     * @return the relation exists or not
+     */
+    public Boolean hasKG(Long kgId) {
+        ArrayList<KGEntity> kg = kgMapper.getKGByKGId(kgId);
+        if (!kg.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

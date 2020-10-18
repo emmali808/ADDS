@@ -17,4 +17,10 @@ public interface KGRepository extends Neo4jRepository<KGNode, Long> {
 
     @Query("MATCH (x)-[r]-(y) WHERE id(x)={nodeId} RETURN x, r, y;")
     List<Map<String, Object>> getNodeAndRelNodes(Long nodeId);
+
+    @Query("MATCH (x)-[r]-(y) WHERE x.kgId = {kgId} RETURN x, r, y;")
+    List<Map<String, Object>> getRelByKGId(Long kgId);
+
+    @Query("MATCH (x) WHERE x.kgId = {kgId} RETURN x;")
+    List<Map<String, Object>> getNodeByKGId(Long kgId);
 }

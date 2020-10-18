@@ -90,9 +90,6 @@ const router = new Router({
       path: '/knowledgeGraph',
       name: 'knowledgeGraph',
       component: knowledgeGraph,
-      meta: {
-        keepAlive: true
-      }
     }, {
       path: '/medicalArchivePreprocess',
       name: 'medicalArchivePreprocess',

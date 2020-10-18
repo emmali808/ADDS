@@ -145,13 +145,38 @@ public class KGService {
         }
     }
 
-        /**
-         * Get Knowledge-Graph by KG id
-         * @param kgId KG id
-         * @return KG data(partial): A String-Object Map format for D3
-         */
+    /**
+     * Get Knowledge-Graph by KG id
+     * @param kgId KG id
+     * @return KG data(partial): A String-Object Map format for D3
+     */
     public Map<String, Object> getKGById(Long kgId) {
-//        Long nodeId = kgDao.getCentralNodeByKGId(kgId);
+        if (kgDao.hasKG(kgId)) {
+            return kgDao.getKGById(kgId);
+        } else {
+            return kgDao.noDataFormat();
+        }
+    }
+
+    /**
+     * Get Knowledge-Graph by KG id by calculating central node
+     * @param kgId KG id
+     * @return KG data(partial): A String-Object Map format for D3
+     */
+    public Map<String, Object> getKGByIdWithCentralNode(Long kgId) {
+        Long nodeId = kgDao.getCentralNodeByKGId(kgId);
+        if (nodeId < 0) {
+            return kgDao.noDataFormat();
+        } else {
+            return kgDao.getNodeAndRelNodes(nodeId);
+        }
+    }
+
+    /**
+     * Get Random Knowledge-Graph
+     * @return KG data(partial): A String-Object Map format for D3
+     */
+    public Map<String, Object> getRandomKG() {
         Long nodeId = kgDao.getRandomAdmissionNode();
         if (nodeId < 0) {
             return kgDao.noDataFormat();

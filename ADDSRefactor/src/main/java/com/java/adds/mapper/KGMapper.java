@@ -37,4 +37,6 @@ public interface KGMapper {
             "values(#{kgEntity.userId}, #{kgEntity.name}, #{kgEntity.desc}, #{kgEntity.filePath})")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "kgEntity.id")
     void uploadKGFile(@Param("kgEntity") KGEntity kgEntity);
+
+    ArrayList<KGEntity> getKGByKGId(@Param("kgId") Long kgId);
 }
