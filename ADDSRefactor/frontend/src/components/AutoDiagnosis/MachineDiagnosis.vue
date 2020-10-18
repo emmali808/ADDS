@@ -79,6 +79,7 @@
                     id: -1,
                 },
                 transform: '',
+                similarGraphAdmissionIds: [],
             }
         },
         created() {
@@ -109,6 +110,7 @@
             loadKG() {
                 this.removeCurrentKgData1();
                 this.removeCurrentKgData2();
+                // get medical archive generated graph
                 this.$axios({
                     method: 'get',
                     url: '/kg/graph/' + this.kgChosen,
@@ -122,37 +124,48 @@
                 }).catch(error => {
                     console.log(error);
                 });
+                // get similar cases admission node id
                 this.$axios({
                     method: 'get',
-                    url: '/kg/graph',
+                    url: '/diagnosis/' + this.kgChosen
                 }).then(res => {
-                    let nodes = res.data.nodes;
-                    let links = res.data.links;
-                    this.kgData2.nodes = nodes;
-                    this.kgData2.links = links;
-                    for (let node in nodes) {
-                        if (nodes.hasOwnProperty(node)) {
-                            this.kgNodeBufferedMap[nodes[node].id] = {
-                                id: nodes[node].id,
-                                name: nodes[node].name,
-                                childNode: [],
-                                relations: [],
-                                loadedInGraph: true
-                            };
+                    this.similarGraphAdmissionIds = res.data;
+                                    // display one of the similar cases
+                    this.$axios({
+                        method: 'get',
+                        url: '/kg/node/' + this.similarGraphAdmissionIds[0],
+                    }).then(res => {
+                        console.log(res.data)
+                        let nodes = res.data.nodes;
+                        let links = res.data.links;
+                        this.kgData2.nodes = nodes;
+                        this.kgData2.links = links;
+                        for (let node in nodes) {
+                            if (nodes.hasOwnProperty(node)) {
+                                this.kgNodeBufferedMap[nodes[node].id] = {
+                                    id: nodes[node].id,
+                                    name: nodes[node].name,
+                                    childNode: [],
+                                    relations: [],
+                                    loadedInGraph: true
+                                };
+                            }
                         }
-                    }
-                    for (let link in links) {
-                        if (links.hasOwnProperty(link)) {
-                            this.kgNodeBufferedMap[links[link].source].childNode.push({
-                                id: this.kgNodeBufferedMap[links[link].target].id,
-                                name: this.kgNodeBufferedMap[links[link].target].name
-                            });
-                            this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
-                            this.kgNodeUnfoldFlag[links[link].source] = false;
-                            this.kgNodeUnfoldFlag[links[link].target] = true;
+                        for (let link in links) {
+                            if (links.hasOwnProperty(link)) {
+                                this.kgNodeBufferedMap[links[link].source].childNode.push({
+                                    id: this.kgNodeBufferedMap[links[link].target].id,
+                                    name: this.kgNodeBufferedMap[links[link].target].name
+                                });
+                                this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
+                                this.kgNodeUnfoldFlag[links[link].source] = false;
+                                this.kgNodeUnfoldFlag[links[link].target] = true;
+                            }
                         }
-                    }
-                    this.paintGraph2(this.kgData2, this.kgSvgComponents2);
+                        this.paintGraph2(this.kgData2, this.kgSvgComponents2);
+                    }).catch(error => {
+                        console.log(error);
+                    });
                 }).catch(error => {
                     console.log(error);
                 });
