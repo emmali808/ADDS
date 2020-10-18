@@ -3,7 +3,7 @@
         <div class="patientCase">
             <h3>Select Your Case:</h3>
             <div class="option-block">
-                <el-select v-model="kgChosen" placeholder="Choose a knowledge graph" @change="loadKG">
+                <el-select v-model="kgChosen" placeholder="Choose a knowledge graph" @change="loadKG1">
                     <el-option v-for="kg in kgList" :key="kg.value" :label="kg.label" :value="kg.value">
                     </el-option>
                 </el-select>
@@ -26,12 +26,12 @@
                 The patient has a runny nose and may haveCold. There are several small red dots that do not protrude in the back of the head. The measured body temperature was 37.8 degrees, and the electrocardiogram results in sinus rhythm and T wave changes. It is recommended to take acetyl guitarmycin granules twice a day, one bag at a time. Pediatric heat-clearing granules, three times a day, half a bag each time.
             </div>
             <div class="page-nav" >
-                <a href="#" class="prev">«</a>
-                <a href="#" class="num">1</a>
-                <a href="#" class="on num">2</a>
-                <a href="#" class="num">3</a>
-                <a href="#" class="num">4</a>
-                <a href="#" class="next">»</a>
+                <el-pagination
+                    @current-change="handleCurrentChange"
+                    :page-size="1"
+                    layout="prev, pager, next"
+                    :total="numOfGraphs">
+                </el-pagination>
             </div>
         </div>
     </el-main>
@@ -80,6 +80,7 @@
                 },
                 transform: '',
                 similarGraphAdmissionIds: [],
+                numOfGraphs: 10
             }
         },
         created() {
@@ -107,7 +108,7 @@
                     console.log(error);
                 });
             },
-            loadKG() {
+            loadKG1() {
                 this.removeCurrentKgData1();
                 this.removeCurrentKgData2();
                 // get medical archive generated graph
@@ -130,42 +131,45 @@
                     url: '/diagnosis/' + this.kgChosen
                 }).then(res => {
                     this.similarGraphAdmissionIds = res.data;
-                                    // display one of the similar cases
-                    this.$axios({
-                        method: 'get',
-                        url: '/kg/node/' + this.similarGraphAdmissionIds[0],
-                    }).then(res => {
-                        console.log(res.data)
-                        let nodes = res.data.nodes;
-                        let links = res.data.links;
-                        this.kgData2.nodes = nodes;
-                        this.kgData2.links = links;
-                        for (let node in nodes) {
-                            if (nodes.hasOwnProperty(node)) {
-                                this.kgNodeBufferedMap[nodes[node].id] = {
-                                    id: nodes[node].id,
-                                    name: nodes[node].name,
-                                    childNode: [],
-                                    relations: [],
-                                    loadedInGraph: true
-                                };
-                            }
+                    this.numOfGraphs = res.data.length;
+                    // display one of the similar cases
+                    this.loadKG2(1);
+                }).catch(error => {
+                    console.log(error);
+                });
+            },
+            loadKG2(graphId) {
+                this.$axios({
+                    method: 'get',
+                    url: '/kg/node/' + this.similarGraphAdmissionIds[graphId - 1],
+                }).then(res => {
+                    let nodes = res.data.nodes;
+                    let links = res.data.links;
+                    this.kgData2.nodes = nodes;
+                    this.kgData2.links = links;
+                    for (let node in nodes) {
+                        if (nodes.hasOwnProperty(node)) {
+                            this.kgNodeBufferedMap[nodes[node].id] = {
+                                id: nodes[node].id,
+                                name: nodes[node].name,
+                                childNode: [],
+                                relations: [],
+                                loadedInGraph: true
+                            };
                         }
-                        for (let link in links) {
-                            if (links.hasOwnProperty(link)) {
-                                this.kgNodeBufferedMap[links[link].source].childNode.push({
-                                    id: this.kgNodeBufferedMap[links[link].target].id,
-                                    name: this.kgNodeBufferedMap[links[link].target].name
-                                });
-                                this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
-                                this.kgNodeUnfoldFlag[links[link].source] = false;
-                                this.kgNodeUnfoldFlag[links[link].target] = true;
-                            }
+                    }
+                    for (let link in links) {
+                        if (links.hasOwnProperty(link)) {
+                            this.kgNodeBufferedMap[links[link].source].childNode.push({
+                                id: this.kgNodeBufferedMap[links[link].target].id,
+                                name: this.kgNodeBufferedMap[links[link].target].name
+                            });
+                            this.kgNodeBufferedMap[links[link].source].relations.push(links[link]);
+                            this.kgNodeUnfoldFlag[links[link].source] = false;
+                            this.kgNodeUnfoldFlag[links[link].target] = true;
                         }
-                        this.paintGraph2(this.kgData2, this.kgSvgComponents2);
-                    }).catch(error => {
-                        console.log(error);
-                    });
+                    }
+                    this.paintGraph2(this.kgData2, this.kgSvgComponents2);
                 }).catch(error => {
                     console.log(error);
                 });
@@ -592,6 +596,9 @@
                 this.kgData2.links.length = 0;
                 this.kgEntityInfo.id = -1;
             },
+            handleCurrentChange(val) {
+                this.loadKG2(val);
+            }
         }
 
     }
@@ -619,37 +626,11 @@
     .diagnosis{
         margin: 10px;
     }
+
     .page-nav{
         text-align: center;
         margin-top: 20px;
         padding-bottom: 100px;
-    }
-    .page-nav a{
-        margin-right: 12px;
-    }
-    .page-nav .num{
-        display: inline-block;
-        color: black;
-        text-decoration: none;
-        width: 32px;
-        height: 32px;
-        text-align: center;
-        line-height: 32px;
-    }
-    .page-nav .on {
-        background-color: #409EFF;
-        color: white;
-        border-radius: 100%;
-    }
-    .page-nav .prev,.page-nav .next{
-        display: inline-block;
-        color: black;
-        text-decoration: none;
-        width: 32px;
-        height: 32px;
-        text-align: center;
-        line-height: 32px;
-        cursor: text;
     }
 
     .kg-div {

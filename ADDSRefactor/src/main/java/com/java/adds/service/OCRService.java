@@ -28,7 +28,7 @@ public class OCRService {
      * ocr recognize images in a zipped docx file and create a text file
      * @author XYX
      */
-    public void ocrMedicalArchive(MedicalArchiveEntity medicalArchive)
+    public MedicalArchiveEntity ocrMedicalArchive(MedicalArchiveEntity medicalArchive)
     {
         String zipFilePath = medicalArchive.getZipFilePath();
         String doctorId = medicalArchive.getUserId().toString();
@@ -44,5 +44,6 @@ public class OCRService {
         medicalArchive.setTxtFilePath(txtFilePath);
         medicalArchive.setStatus(true);
         medicalArchiveDao.updateMedicalArchive(medicalArchive);
+        return medicalArchive;
     }
 }

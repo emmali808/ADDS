@@ -5,9 +5,7 @@ import com.java.adds.entity.KGNode;
 import com.java.adds.entity.KGRel;
 import com.java.adds.mapper.KGMapper;
 import com.java.adds.mapper.KGRepository;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -441,6 +439,35 @@ public class KGDao {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * findAdmissionHavingDiseases
+     * @return the list of the admissions' id
+     */
+    public ArrayList<Long> findAdmissionHavingDiseases(ArrayList<String> diseaseEntities) {
+        int numOfDiseases = diseaseEntities.size();
+        String getAdmissionIdCypher = "MATCH (a)-[]-(d0)";
+        for (int i = 1; i < numOfDiseases; i++) {
+            getAdmissionIdCypher += ", (a)-[]-(d" + Integer.toString(i) + ")";
+        }
+        getAdmissionIdCypher += " WHERE d0.alias = '" + diseaseEntities.get(0) + "'";
+        for (int i = 1; i < numOfDiseases; i++) {
+            getAdmissionIdCypher += " and d" + Integer.toString(i) + ".alias = '" + diseaseEntities.get(i) + "'";
+        }
+        getAdmissionIdCypher += " RETURN id(a) LIMIT 4";
+
+        StatementResult result = executeCypher(getAdmissionIdCypher);
+        if (result.hasNext()) {
+            List<Record> records = result.list();
+            ArrayList<Long> admissionIdList = new ArrayList<>();
+            for (int i = 0; i < records.size(); i++) {
+                admissionIdList.add(records.get(i).fields().get(0).value().asLong());
+            }
+            return admissionIdList;
+        } else {
+            return null;
         }
     }
 }

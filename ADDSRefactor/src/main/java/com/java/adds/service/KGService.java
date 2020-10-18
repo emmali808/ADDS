@@ -187,16 +187,25 @@ public class KGService {
 
     /**
      * Get Knowledge-Graph by searching for a specific node
-     * @param node node content
+     * @param name node content
      * @return KG data(partial): A String-Object Map format for D3
      */
-    public Map<String, Object> getKGByNode(String node) {
-        Long nodeId = kgDao.getNodeByContent(node);
+    public Map<String, Object> getKGByNode(String name) {
+        Long nodeId = kgDao.getNodeByContent(name);
         if (nodeId < 0) {
             return kgDao.noDataFormat();
         } else {
             return kgDao.getNodeAndRelNodes(nodeId);
         }
+    }
+
+    /**
+     * Get Knowledge-Graph by given node id
+     * @param nodeId node id
+     * @return KG data(partial): A String-Object Map format for D3
+     */
+    public Map<String, Object> getKGByNode(Long nodeId) {
+        return kgDao.getNodeAndRelNodes(nodeId);
     }
 
     /**
@@ -250,5 +259,14 @@ public class KGService {
      */
     public Boolean hasRelation(String alias, String drugAlias) {
         return kgDao.hasRelation(alias, drugAlias);
+    }
+
+    /**
+     * findAdmissionHavingDiseases
+     * @param diseaseEntities the list of the diseases
+     * @return the list of the admissions' id
+     */
+    public ArrayList<Long> findAdmissionHavingDiseases(ArrayList<String> diseaseEntities) {
+        return kgDao.findAdmissionHavingDiseases(diseaseEntities);
     }
 }

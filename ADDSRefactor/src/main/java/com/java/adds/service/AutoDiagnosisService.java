@@ -6,10 +6,7 @@ import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Auto Diagnosis Service
@@ -28,16 +25,16 @@ public class AutoDiagnosisService {
      * Create Knowledge Graph From Medical Archive Text
      * @author XYX
      */
-    public void createGraph(MedicalArchiveEntity medicalArchive)
+    public Long createGraph(MedicalArchiveEntity medicalArchive)
     {
         String filePath = medicalArchive.getTxtFilePath();
-        filePath = "H:/Upload/admissions/admission78.txt";
+        filePath = "H:/Upload/admissions/admission78.txt";//todo
         ArrayList<String> fileContentLines = fileUtil.readFileIntoList(filePath);
         String fileContent = String.join(" ", fileContentLines);
         Map <String, ArrayList<String>> entityMap = this.extractEntity(fileContent);
         entityMap = this.validateEntity(entityMap);
         ArrayList<Pair<Integer, Integer>> relationList = this.findRelation(entityMap);
-        Long graphId = kgService.createGraph(entityMap, relationList, medicalArchive);
+        return kgService.createGraph(entityMap, relationList, medicalArchive);
     }
 
     /**
@@ -122,11 +119,20 @@ public class AutoDiagnosisService {
     }
 
     /**
-     * Diagnose By Comparing Graphs
+     * For The Given KG Search For Similar Graphs And Return Admission Id
      * @author XYX
      */
-    public void diagnose(MedicalArchiveEntity medicalArchiveEntity)
+    public ArrayList<Long> searchForSimilarGraphs(Long kdId)
     {
-
+        Map<String, Object> kg = kgService.getKGById(kdId);
+        List<Map<String, Object>> nodes = (List<Map<String, Object>>)kg.get("nodes");
+        ArrayList<String> diseaseEntities = new ArrayList<>();
+        for (Map<String, Object> node : nodes) {
+            if (node.get("type").equals("disease")) {
+                diseaseEntities.add((String)node.get("alias"));
+            }
+        }
+        System.out.println(diseaseEntities);//todo
+        return kgService.findAdmissionHavingDiseases(diseaseEntities);
     }
 }

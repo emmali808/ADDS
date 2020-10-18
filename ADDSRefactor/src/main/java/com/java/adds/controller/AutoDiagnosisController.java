@@ -7,6 +7,8 @@ import com.java.adds.service.OCRService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 /**
  * Auto Diagnosis Controller
  * @author XYX
@@ -28,10 +30,21 @@ public class AutoDiagnosisController {
      * Auto Diagnosis Medical Archive
      */
     @RequestMapping(value = "/{archiveId}", method = RequestMethod.POST)
-    public void autoDiagnosisMedicalArchive(@PathVariable Long archiveId) {
+    public void diagnosisPreparation(@PathVariable Long archiveId) {
         MedicalArchiveEntity medicalArchiveEntity = medicalArchiveService.getMedicalArchiveById(archiveId);
-//        ocrService.ocrMedicalArchive(medicalArchiveEntity);
-        autoDiagnosisService.createGraph(medicalArchiveEntity);
+        medicalArchiveEntity = ocrService.ocrMedicalArchive(medicalArchiveEntity);
+        Long kdId = autoDiagnosisService.createGraph(medicalArchiveEntity);
+        //1.1 similarity search and insert into database
+    }
+
+    //1.2 given kgId query for similar graphs
+    /**
+     * Author: XYX
+     * Get Similar Graphs From The Given KG
+     */
+    @RequestMapping(value = "/{kdId}", method = RequestMethod.GET)
+    public ArrayList<Long> getSimilarGraphs(@PathVariable Long kdId) {
+        return autoDiagnosisService.searchForSimilarGraphs(kdId);
     }
 }
 

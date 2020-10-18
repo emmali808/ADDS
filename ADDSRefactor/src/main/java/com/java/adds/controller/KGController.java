@@ -84,6 +84,12 @@ public class KGController {
         return kgService.getKGByNode(node);
     }
 
+    @RequestMapping(value = "/node/{nodeId}", method = RequestMethod.GET)
+    public Map<String, Object> getNodeAndRelById(@PathVariable("nodeId") Long nodeId)
+    {
+        return kgService.getKGByNode(nodeId);
+    }
+
     /**
      * Author: XYX
      * Get the statistics of the whole graph
