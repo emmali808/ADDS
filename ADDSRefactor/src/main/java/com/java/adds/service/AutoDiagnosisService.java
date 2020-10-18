@@ -2,7 +2,6 @@ package com.java.adds.service;
 
 import com.java.adds.entity.*;
 import com.java.adds.utils.FileUtil;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class AutoDiagnosisService {
         String fileContent = String.join(" ", fileContentLines);
         Map <String, ArrayList<String>> entityMap = this.extractEntity(fileContent);
         entityMap = this.validateEntity(entityMap);
-        ArrayList<Pair<Integer, Integer>> relationList = this.findRelation(entityMap);
+        ArrayList<Map.Entry<Integer, Integer>> relationList = this.findRelation(entityMap);
         return kgService.createGraph(entityMap, relationList, medicalArchive);
     }
 
@@ -101,16 +100,16 @@ public class AutoDiagnosisService {
      * Find Relations Between Diseases And Drugs
      * @author XYX
      */
-    public ArrayList<Pair<Integer, Integer>> findRelation(Map <String, ArrayList<String>> entityMap)
+    public ArrayList<Map.Entry<Integer, Integer>> findRelation(Map <String, ArrayList<String>> entityMap)
     {
-        ArrayList<Pair<Integer, Integer>> relationList = new ArrayList<>();
+        ArrayList<Map.Entry<Integer, Integer>> relationList = new ArrayList<>();
 
         ArrayList<String> diseaseEntities = entityMap.get("diseaseEntities");
         ArrayList<String> drugEntities = entityMap.get("drugEntities");
         for (int i = 0; i < diseaseEntities.size(); i++) {
             for (int j = 0; j < drugEntities.size(); j++) {
                 if (kgService.hasRelation(diseaseEntities.get(i), drugEntities.get(j))) {
-                    relationList.add(new Pair<>(i, j));
+                    relationList.add(new AbstractMap.SimpleEntry<>(i, j));
                 }
             }
         }

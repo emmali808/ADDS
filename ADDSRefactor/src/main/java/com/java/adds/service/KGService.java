@@ -3,7 +3,6 @@ package com.java.adds.service;
 import com.java.adds.dao.KGDao;
 import com.java.adds.entity.KGEntity;
 import com.java.adds.entity.MedicalArchiveEntity;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -117,7 +116,7 @@ public class KGService {
     /**
      * Import All MIMIC III Data Into One Singular Graph
      */
-    public Long createGraph(Map <String, ArrayList<String>> entityMap, ArrayList<Pair<Integer, Integer>> relationList, MedicalArchiveEntity medicalArchive) {
+    public Long createGraph(Map <String, ArrayList<String>> entityMap, ArrayList<Map.Entry<Integer, Integer>> relationList, MedicalArchiveEntity medicalArchive) {
         Long userId = medicalArchive.getUserId();
         String kgName = medicalArchive.getTitle();
         String kgDesc = medicalArchive.getDescription();
@@ -136,7 +135,7 @@ public class KGService {
                 kgDao.createNode(kgId, "drug_" + Integer.toString(i), "drug", new HashMap<String, String>() {{ put("drug_alias", drug); }});
             }
 
-            for (Pair<Integer, Integer> relation : relationList) {
+            for (Map.Entry<Integer, Integer> relation : relationList) {
                 kgDao.createRel(kgId, "disease_" + relation.getKey().toString(), "drug_" + relation.getValue().toString());
             }
             return kgId;
