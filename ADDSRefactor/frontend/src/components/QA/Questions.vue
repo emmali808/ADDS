@@ -198,6 +198,7 @@
                             });
                         }
                     }
+                    this.questionList.sort((a, b) => (a.id > b.id) ? -1 : 1)
                 }).catch(error => {
                     console.log(error);
                     alert("ERROR! Check Console plz! ");
@@ -308,6 +309,7 @@
                         }
                     }
                     this.loadedQuestionCount = 0;
+                    this.questionList.sort((a, b) => (a.id > b.id) ? -1 : 1)
                 }).catch(error => {
                     console.log(error);
                     alert("ERROR  in function \"loadMyQuestions( )\" [Questions]! Check Console plz! ");
@@ -334,7 +336,7 @@
             }
         },
         created() {
-            this.loadQuestions();
+            this.loadMyQuestions();
             this.loadDepartments();
             sessionStorage.setItem("addsCurrentQuestionStatusIsChanged", JSON.stringify({
                 isChanged: false
@@ -348,6 +350,13 @@
         beforeRouteLeave(to, from, next) {
             this.scroll = this.$refs.questionListDiv.parentElement.parentElement.scrollTop;
             next();
+        },
+        watch: {
+            '$route': {
+              handler(route) {
+                this.loadMyQuestions();
+              }
+            }
         }
     }
 </script>

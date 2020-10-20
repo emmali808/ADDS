@@ -27,14 +27,13 @@ public class AutoDiagnosisService {
     public Long createGraph(MedicalArchiveEntity medicalArchive)
     {
         String filePath = medicalArchive.getTxtFilePath();
-        filePath = "H:/Upload/admissions/admission78.txt";//todo
         ArrayList<String> fileContentLines = fileUtil.readFileIntoList(filePath);
         String fileContent = String.join(" ", fileContentLines);
         Map <String, ArrayList<String>> entityMap = this.extractEntity(fileContent);
         entityMap = this.validateEntity(entityMap);
         ArrayList<Map.Entry<Integer, Integer>> relationList = this.findRelation(entityMap);
         return kgService.createGraph(entityMap, relationList, medicalArchive);
-    }
+        }
 
     /**
      * Extract Drug And Disease Entity From Given File Content
@@ -44,7 +43,7 @@ public class AutoDiagnosisService {
     {
         String staticPath = this.getClass().getResource("/entityDict/").getPath();
 
-        String diseaseDictPath = staticPath.substring(1) + "DiseaseDict.txt";
+        String diseaseDictPath = staticPath + "DiseaseDict.txt";
         ArrayList<String> diseaseDict = fileUtil.readFileIntoList(diseaseDictPath);
         ArrayList<String> diseaseEntities = new ArrayList<>();
         for (String disease : diseaseDict) {
@@ -53,7 +52,7 @@ public class AutoDiagnosisService {
             }
         }
 
-        String drugDictPath = staticPath.substring(1) + "DrugDict.txt";
+        String drugDictPath = staticPath + "DrugDict.txt";
         ArrayList<String> drugDict = fileUtil.readFileIntoList(drugDictPath);
         ArrayList<String> drugEntities = new ArrayList<>();
         for (String drug : drugDict) {
@@ -131,7 +130,10 @@ public class AutoDiagnosisService {
                 diseaseEntities.add((String)node.get("alias"));
             }
         }
-        System.out.println(diseaseEntities);//todo
-        return kgService.findAdmissionHavingDiseases(diseaseEntities);
+        if (diseaseEntities.size() == 0) {
+            return null;
+        } else {
+            return kgService.findAdmissionHavingDiseases(diseaseEntities);
+        }
     }
 }

@@ -23,7 +23,7 @@
             </div>
             <div class="diagnosis" style="margin-right: auto;margin-left: auto;margin-top: 10px;width: 750px;text-align: left;font-size: 16px">
                 <span style="font-weight: bold">Diagnosis：</span>
-                The patient has a runny nose and may haveCold. There are several small red dots that do not protrude in the back of the head. The measured body temperature was 37.8 degrees, and the electrocardiogram results in sinus rhythm and T wave changes. It is recommended to take acetyl guitarmycin granules twice a day, one bag at a time. Pediatric heat-clearing granules, three times a day, half a bag each time.
+                The patient has a history of diastolic CHF, atrial fibrillation, HTN and was presented with CHF exacerbation requiring intubation. On admission, the patient's ABG was 7.25/70/242, Bipap was started and the patient was admitted to the MICU. Chest Xray shows very limited radiograph, small bilateral pleural effusions and mild pulmonary edema cannot be excluded.
             </div>
             <div class="page-nav" >
                 <el-pagination
@@ -89,6 +89,18 @@
         mounted() {
             this.initGraph();
         },
+        watch: {
+            '$route': {
+              handler(route) {
+                this.loadKGList();
+                this.removeCurrentKgData1();
+                this.removeCurrentKgData2();
+                                    this.paintGraph1(this.kgData1, this.kgSvgComponents1);
+
+                this.$refs.similarCases.style.display = "none";
+              }
+            }
+        },
         methods: {
             loadKGList() {
                 this.$axios({
@@ -121,7 +133,6 @@
                     this.kgData1.nodes = nodes;
                     this.kgData1.links = links;
                     this.paintGraph1(this.kgData1, this.kgSvgComponents1);
-                    this.$refs.similarCases.style.display = "block";
                 }).catch(error => {
                     console.log(error);
                 });
@@ -133,7 +144,12 @@
                     this.similarGraphAdmissionIds = res.data;
                     this.numOfGraphs = res.data.length;
                     // display one of the similar cases
-                    this.loadKG2(1);
+                    if (res.data.length != 0) {
+                        this.$refs.similarCases.style.display = "block";
+                        this.loadKG2(1);
+                    } else {
+                        this.$refs.similarCases.style.display = "none";
+                    }
                 }).catch(error => {
                     console.log(error);
                 });

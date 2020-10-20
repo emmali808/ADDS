@@ -37,4 +37,4 @@ if __name__ == '__main__':
 
     for file in file_list:
         unzip(file)
-        # os.remove(file)
+        os.remove(file)

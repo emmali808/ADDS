@@ -55,13 +55,13 @@ def find_file(path, ext, file_list=[]):
 def reorder(list):
     for i in range(len(list)):
         original_name = list[i]
-        path = original_name.split('\\')
+        path = original_name.split('/')
         name = path[-1].split('.')
         id = int(name[0][5:])
         if id < 10:
             name[0] = name[0][:5] + '0' + name[0][5:]
         path[-1] = '.'.join(name)
-        list[i] = '\\'.join(path)
+        list[i] = '/'.join(path)
         os.rename(original_name, list[i])
     return list.sort()
 

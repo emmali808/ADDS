@@ -183,8 +183,8 @@ public class KGDao {
      * @return KG data(partial): A String-Object Map for d3
      */
     public Map<String, Object> getKGById(Long kgId) {
-        List<Map<String, Object>> kgForNode = kgRepository.getNodeByKGId(kgId);
-        List<Map<String, Object>> kgForRel = kgRepository.getRelByKGId(kgId);
+        List<Map<String, Object>> kgForNode = kgRepository.getNodeByKGId(kgId.toString());
+        List<Map<String, Object>> kgForRel = kgRepository.getRelByKGId(kgId.toString());
         return toD3Format(kgForNode, kgForRel);
     }
 
@@ -456,7 +456,7 @@ public class KGDao {
         for (int i = 1; i < numOfDiseases; i++) {
             getAdmissionIdCypher += " and d" + Integer.toString(i) + ".alias = '" + diseaseEntities.get(i) + "'";
         }
-        getAdmissionIdCypher += " RETURN id(a) LIMIT 4";
+        getAdmissionIdCypher += " and a.type = 'admission' RETURN id(a) LIMIT 10";
 
         StatementResult result = executeCypher(getAdmissionIdCypher);
         if (result.hasNext()) {

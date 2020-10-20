@@ -234,14 +234,10 @@
               });
             },
             searchNode(){
-              let params = new FormData();
-              params.append("node", this.searchContent);
-
               this.removeCurrentKgData();
               this.$axios({
                   method: 'get',
-                  url: '/kg/node',
-                  data: params
+                  url: '/kg/node/search/' + this.searchContent,
               }).then(res => {
                   let nodes = res.data.nodes;
                   let links = res.data.links;

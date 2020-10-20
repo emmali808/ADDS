@@ -41,8 +41,17 @@
           this.$refs.upload.submit();
         },
         uploadMedicalArchive(content) {
+          var date = new Date();
+          var dateString =
+              date.getUTCFullYear() +
+              ("0" + (date.getUTCMonth()+1)).slice(-2) +
+              ("0" + date.getUTCDate()).slice(-2) +
+              ("0" + date.getUTCHours()).slice(-2) +
+              ("0" + date.getUTCMinutes()).slice(-2) +
+              ("0" + date.getUTCSeconds()).slice(-2);
+
           let params = new FormData();
-          params.append('title', 'Patient ' + this.$store.state.user.id + ' Medical Archive');
+          params.append('title', 'Patient ' + this.$store.state.user.id + ' Medical Archive ' + dateString);
           params.append('category', 'N/A');
           params.append('desc', this.uploadForm.desc);
           params.append('file', content.file);

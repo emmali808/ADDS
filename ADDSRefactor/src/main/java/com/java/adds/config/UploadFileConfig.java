@@ -24,8 +24,7 @@ public class UploadFileConfig extends WebMvcConfigurerAdapter {
     @Value("H:/Upload/")
     String kgFilePath;
 
-    //todo
-    @Value("H:/Upload/")
+    @Value("/home/lf/Upload/")
     String medicalArchiveFilePath;
 
     @Override

@@ -1,5 +1,4 @@
 import sys
-from docx import Document
 import os
 import zipfile
 
@@ -29,7 +28,7 @@ def find_file(path, ext, file_list=[]):
 
 
  
-#dir_path = "D:\GraProject\workplace"  #找该文件夹下所有ext文件
+# dir_path = "D:\GraProject\workplace"  #找该文件夹下所有ext文件
 
 if __name__ == '__main__':
     dir_path = sys.argv[-1]

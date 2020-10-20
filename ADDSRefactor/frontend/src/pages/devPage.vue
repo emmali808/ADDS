@@ -23,12 +23,10 @@
       methods: {
         magic() {
           this.$axios({
-              method: 'get',
-              url: '/diagnosis/24'
+                method: 'post',
+                url: '/diagnosis/31',
           }).then(res => {
-                console.log(res.data)
-                })
-          .catch(error => {
+          }).catch(error => {
               console.log(error);
           });
         },

@@ -77,6 +77,7 @@
             div.style = 'border: 1px rgb(31, 142, 255) solid; border-radius: 5px; background-color: rgb(31, 142, 255); color: white; float: right; width: fit-content; padding: 6px 10px; margin: 5px; margin-left: 30px;';
             outer_div.append(div);
             document.getElementById("chat-history").append(outer_div);
+            document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
 
             let params = new FormData();
             params.append("msg", this.input);
@@ -86,17 +87,22 @@
               url: '/consult/online',
               data: params
             }).then(res => {
-              outer_div = document.createElement('div');
-              outer_div.style = 'width: 100%; overflow: auto;';
-              div = document.createElement('div');
-              div.innerHTML = res.data;
-              div.style = 'border: 1px rgb(235, 237, 240) solid; border-radius: 5px; background-color: rgb(235, 237, 240); float: left; width: fit-content; padding: 6px 10px; margin: 5px; margin-right: 30px;';
-              outer_div.append(div);
-              document.getElementById("chat-history").append(outer_div);
+              clearTimeout(this.timer);
+              this.timer = setTimeout(()=>{   //设置延迟执行
+                outer_div = document.createElement('div');
+                outer_div.style = 'width: 100%; overflow: auto;';
+                div = document.createElement('div');
+                div.innerHTML = res.data;
+                div.style = 'border: 1px rgb(235, 237, 240) solid; border-radius: 5px; background-color: rgb(235, 237, 240); float: left; width: fit-content; padding: 6px 10px; margin: 5px; margin-right: 30px;';
+                outer_div.append(div);
+                document.getElementById("chat-history").append(outer_div);
+                setTimeout("testFunction(res)","2000");
+                document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
+            },1000);
+              
             }).catch(error => {
               console.log(error);
             });
-            document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
           }
         },
         chooseCharacter(){

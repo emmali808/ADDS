@@ -20,9 +20,8 @@ public class PythonUtil {
      */
     public void runPython(String pythonFile, String... params) {
         String pythonPath = this.getClass().getResource("/python/").getPath();
-
         try {
-            ArrayList<String> args = new ArrayList<String>(Arrays.asList("python", pythonPath.substring(1) + pythonFile));
+            ArrayList<String> args = new ArrayList<String>(Arrays.asList("python", pythonPath + pythonFile));
             args.addAll(Arrays.asList(params));
             String[] temp = new String[args.size()];
             Process proc = Runtime.getRuntime().exec(args.toArray(temp));
