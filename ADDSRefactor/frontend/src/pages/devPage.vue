@@ -24,7 +24,7 @@
         magic() {
           this.$axios({
                 method: 'post',
-                url: '/diagnosis/31',
+                url: '/kg/createGraph',
           }).then(res => {
           }).catch(error => {
               console.log(error);

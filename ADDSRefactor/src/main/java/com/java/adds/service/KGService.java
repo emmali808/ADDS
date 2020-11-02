@@ -114,7 +114,7 @@ public class KGService {
     }
 
     /**
-     * Import All MIMIC III Data Into One Singular Graph
+     * Import The Generated Graph
      */
     public Long createGraph(Map <String, ArrayList<String>> entityMap, ArrayList<Map.Entry<Integer, Integer>> relationList, MedicalArchiveEntity medicalArchive) {
         Long userId = medicalArchive.getUserId();
