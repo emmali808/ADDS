@@ -46,5 +46,15 @@ public class AutoDiagnosisController {
     public ArrayList<Long> getSimilarGraphs(@PathVariable Long kdId) {
         return autoDiagnosisService.searchForSimilarGraphs(kdId);
     }
+
+
+    /**
+     * Author: XYX
+     * Get Doctor's Diagnosis
+     */
+    @RequestMapping(value = "/admission/{admissionId}", method = RequestMethod.GET)
+    public String getDoctorDiagnosis(@PathVariable Long admissionId) {
+        return autoDiagnosisService.getDoctorDiagnosis(admissionId);
+    }
 }
 

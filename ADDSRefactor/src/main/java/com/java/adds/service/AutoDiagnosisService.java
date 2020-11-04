@@ -1,5 +1,6 @@
 package com.java.adds.service;
 
+import com.java.adds.dao.DoctorDiagnosisDao;
 import com.java.adds.entity.*;
 import com.java.adds.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class AutoDiagnosisService {
 
     @Autowired
     KGService kgService;
+
+    @Autowired
+    DoctorDiagnosisDao doctorDiagnosisDao;
 
     /**
      * Create Knowledge Graph From Medical Archive Text
@@ -134,6 +138,16 @@ public class AutoDiagnosisService {
             return null;
         } else {
             return kgService.findAdmissionHavingDiseases(diseaseEntities);
+        }
+    }
+
+    public String getDoctorDiagnosis(Long admissionId)
+    {
+        ArrayList<DoctorDiagnosisEntity> doctorDiagnosisEntities = doctorDiagnosisDao.getDiagnosisByAdmissionId(admissionId);
+        if (doctorDiagnosisEntities.size() != 0) {
+            return doctorDiagnosisEntities.get(0).getDoctor_diagnosis();
+        } else {
+            return "";
         }
     }
 }

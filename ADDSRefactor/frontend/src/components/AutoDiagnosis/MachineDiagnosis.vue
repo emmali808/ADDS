@@ -23,7 +23,7 @@
             </div>
             <div class="diagnosis" style="margin-right: auto;margin-left: auto;margin-top: 10px;width: 750px;text-align: left;font-size: 16px">
                 <span style="font-weight: bold">Diagnosis：</span>
-                The patient has a history of diastolic CHF, atrial fibrillation, HTN and was presented with CHF exacerbation requiring intubation. On admission, the patient's ABG was 7.25/70/242, Bipap was started and the patient was admitted to the MICU. Chest Xray shows very limited radiograph, small bilateral pleural effusions and mild pulmonary edema cannot be excluded.
+                {{diagnosis}}
             </div>
             <div class="page-nav" >
                 <el-pagination
@@ -80,7 +80,8 @@
                 },
                 transform: '',
                 similarGraphAdmissionIds: [],
-                numOfGraphs: 10
+                numOfGraphs: 10,
+                diagnosis: ''
             }
         },
         created() {
@@ -95,7 +96,7 @@
                 this.loadKGList();
                 this.removeCurrentKgData1();
                 this.removeCurrentKgData2();
-                                    this.paintGraph1(this.kgData1, this.kgSvgComponents1);
+                this.paintGraph1(this.kgData1, this.kgSvgComponents1);
 
                 this.$refs.similarCases.style.display = "none";
               }
@@ -186,6 +187,24 @@
                         }
                     }
                     this.paintGraph2(this.kgData2, this.kgSvgComponents2);
+                    var admission_id = ''
+                    nodes.forEach(node => {
+                        if(node.type == 'admission') {
+                           admission_id = node.admission_id.substring(2, node.admission_id.length)
+                        }
+                    });
+                    this.$axios({
+                        method: 'get',
+                        url: '/diagnosis/admission/' + admission_id,
+                    }).then(res => {
+                        if (res.data !='') {
+                            this.diagnosis = res.data
+                        } else {
+                            this.diagnosis = 'Doctor\'s diagnosis missing'
+                        }
+                    }).catch(error => {
+                        console.log(error)
+                    })
                 }).catch(error => {
                     console.log(error);
                 });
