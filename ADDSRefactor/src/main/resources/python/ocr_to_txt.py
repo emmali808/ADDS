@@ -13,7 +13,7 @@ import socket
 def ocr_to_txt(case_img, dir_path, file_name):
     payload = "image=img"
 
-    url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=24.ee6055b798485612927e2379dee6acd8.2592000.1605290408.282335-21160588'
+    url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=YourAccessToken'
 
     f = open(case_img, 'rb')
     img = base64.b64encode(f.read())

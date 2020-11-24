@@ -52,7 +52,7 @@ public class MedicalArchiveController {
         Map<String, Object> res = new HashMap<>();
 
         String fileName = fileUtil.getFileNameWithTimeStamp(userId.toString(), file.getOriginalFilename());
-        String filePath = fileConfig.getMedicalArchiveFilePath() + fileName;
+        String filePath = fileConfig.getUploadFilePath() + fileName;
         File dest = new File(filePath);
         if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdir();
@@ -62,7 +62,7 @@ public class MedicalArchiveController {
             file.transferTo(dest);
         } catch (IOException e) {
             response.setStatus(501);
-            res.put("error", "文件保存失败");
+            res.put("error", "failed to save file");
             return res;
         }
 
@@ -80,7 +80,7 @@ public class MedicalArchiveController {
             res.put("medicalArchiveId", medicalArchiveId);
         } else {
             response.setStatus(502);
-            res.put("error", "数据库写入失败");
+            res.put("error", "fail to write to database");
         }
         return res;
     }
@@ -96,7 +96,7 @@ public class MedicalArchiveController {
         MedicalArchiveEntity medicalArchiveEntity = medicalArchiveService.getMedicalArchiveById(archiveId);
         if (medicalArchiveEntity == null) {
             response.setStatus(404);
-            res.put("error", "找不到文件");
+            res.put("error", "cannot find file");
             return res;
         }
 
@@ -111,7 +111,7 @@ public class MedicalArchiveController {
             res.put("success", medicalArchiveEntity.getId());
         } catch (IOException e) {
             response.setStatus(504);
-            res.put("error", "文件下载失败");
+            res.put("error", "failed to download");
         }
         return res;
     }

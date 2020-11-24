@@ -1,5 +1,6 @@
 package com.java.adds.service;
 
+import com.java.adds.config.UploadFileConfig;
 import com.java.adds.dao.KGDao;
 import com.java.adds.entity.KGEntity;
 import com.java.adds.entity.MedicalArchiveEntity;
@@ -26,6 +27,9 @@ public class KGService {
 
     @Autowired
     private KGDao kgDao;
+
+    @Autowired
+    UploadFileConfig fileConfig;
 
     /**
      * Upload Knowledge-Graph file
@@ -57,7 +61,7 @@ public class KGService {
      * Import All MIMIC III Data Into One Singular Graph
      */
     public void createGraphSingular() {
-        File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
+        File folder = new File(fileConfig.getUploadFilePath());
         File[] fileList = folder.listFiles();
         for (int i = 0; i < fileList.length; i++) {
             System.out.println("start importing " + fileList[i]);
@@ -117,7 +121,7 @@ public class KGService {
      * Import MIMIC III Data Into Separate Graphs For Search
      */
     public void createGraphForSearch() {
-        File folder = new File("/home/adds/文档/4-medicalgraph（编码）/need to import");
+        File folder = new File(fileConfig.getUploadFilePath());
         File[] fileList = folder.listFiles();
         for (int i = 0; i < fileList.length; i++) {
             System.out.println("start importing " + fileList[i]);

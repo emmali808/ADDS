@@ -7,7 +7,6 @@ import com.java.adds.entity.*;
 import com.java.adds.utils.CPPUtil;
 import com.java.adds.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -161,7 +160,7 @@ public class AutoDiagnosisService {
         for (Map.Entry<Integer, Integer> relation : relationList) {
             lines.add("e " + relation.getKey() + " " + (relation.getValue() + offset));
         }
-        return fileUtil.writeListIntoFile(fileConfig.getMedicalArchiveFilePath() + "graph" + kgId + ".txt", lines);
+        return fileUtil.writeListIntoFile(fileConfig.getUploadFilePath() + "graph" + kgId + ".txt", lines);
     }
 
     /**
@@ -176,7 +175,7 @@ public class AutoDiagnosisService {
             return new ArrayList<>(Arrays.asList(similarGraphsString.split(",")));
         } else {
             String dbFile = this.getClass().getResource("/cpp/").getPath() + "allGraphs.txt";
-            String graphFile = fileConfig.getMedicalArchiveFilePath() + "graph" + kgId.toString() + ".txt";
+            String graphFile = fileConfig.getUploadFilePath() + "graph" + kgId.toString() + ".txt";
             ArrayList<String> similarGraphs = cppUtil.runCPP("rangeexp", dbFile, graphFile);
             similarGraphs = kgService.findAdmissionWithIds(similarGraphs);
             StringBuilder sb = new StringBuilder();

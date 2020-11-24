@@ -35,12 +35,11 @@ public class OCRService {
         String title = medicalArchive.getTitle().replace(' ', '_') + ".txt";
         String txtFileName = fileUtil.getFileNameWithTimeStamp(doctorId, title);
 
-        //todo: unzip unique file into unique folder, extract and ocr from unique folder into unique path
-        pythonUtil.runPython("unzip.py", fileConfig.getMedicalArchiveFilePath());
-        pythonUtil.runPython("extra_png_from_word.py", fileConfig.getMedicalArchiveFilePath());
-        pythonUtil.runPython("ocr_to_txt.py", fileConfig.getMedicalArchiveFilePath(), txtFileName);
+        pythonUtil.runPython("unzip.py", fileConfig.getUploadFilePath());
+        pythonUtil.runPython("extra_png_from_word.py", fileConfig.getUploadFilePath());
+        pythonUtil.runPython("ocr_to_txt.py", fileConfig.getUploadFilePath(), txtFileName);
 
-        String txtFilePath = fileConfig.getMedicalArchiveFilePath() + txtFileName;
+        String txtFilePath = fileConfig.getUploadFilePath() + txtFileName;
         medicalArchive.setTxtFilePath(txtFilePath);
         medicalArchive.setStatus(true);
         medicalArchiveDao.updateMedicalArchive(medicalArchive);
