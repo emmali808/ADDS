@@ -268,6 +268,34 @@ public class KGDao {
     }
 
     /**
+     * Create Node For Graph Similarity Search
+     * @param kgId admission id
+     * @param uid node id
+     * @param type node type
+     * @param attributes attribute list
+     */
+    public void createNodeForSearch(Long kgId, String uid, String type, Map<String, String> attributes) {
+        String createNodeCypher = "MERGE (n:ADDSKGNode:kgId1{uid:\'" + uid + "\', type:\'" + type + "\', kgId:\'" + kgId + "\'";
+        for (String key : attributes.keySet())
+            createNodeCypher += (", " + key + ": \'" + attributes.get(key) + "\'");
+        createNodeCypher += "});";
+        executeCypher(createNodeCypher);
+    }
+
+    /**
+     * Create Relation Between Nodes In The MIMIC III Graph
+     * @param kgId admission id
+     * @param uid1 node1 id
+     * @param uid2 node2 id
+     */
+    public void createRelForSearch(Long kgId, String uid1, String uid2) {
+        String createRelCypher =
+                "MATCH (x:ADDSKGNode:kgId1 {kgId:\'" + kgId + "\', uid:\'" + uid1 + "\'}), (y:ADDSKGNode:kgId1 {kgId:\'" + kgId + "\', uid:\'" + uid2 + "\'})" +
+                        "MERGE (x)-[r:ADDSKGRel{name:\'has\'}]->(y);";
+        executeCypher(createRelCypher);
+    }
+
+    /**
      * Create Node In An Independent Graph
      * @param kgId graph id
      * @param uid node id
@@ -398,22 +426,30 @@ public class KGDao {
      * Validate if a drug with this alias exists
      * @return the node exists or not
      */
-    public Boolean hasDrugWithAlias(String drugAlias) {
+    public String hasDrugWithAlias(String drugAlias) {
         String validateCypher =
-                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.drug_alias = \'" + drugAlias + "\' return n";
+                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.drug_alias = \'" + drugAlias + "\' return n.drug_id";
         StatementResult result = executeCypher(validateCypher);
-        return result.hasNext();
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().toString().replace("\"", "");
+        } else {
+            return null;
+        }
     }
 
     /**
      * Validate if a disease with this alias exists
      * @return the node exists or not
      */
-    public Boolean hasDiseaseWithAlias(String alias) {
+    public String hasDiseaseWithAlias(String alias) {
         String validateCypher =
-                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.alias = \'" + alias + "\' return n";
+                "MATCH (n:ADDSKGNode:kgId0)" + "WHERE n.alias = \'" + alias + "\' return n.disease_id";
         StatementResult result = executeCypher(validateCypher);
-        return result.hasNext();
+        if (result.hasNext()) {
+            return result.list().get(0).fields().get(0).value().toString().replace("\"", "");
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -443,29 +479,14 @@ public class KGDao {
     }
 
     /**
-     * findAdmissionHavingDiseases
+     * Find Admission With Id
      * @return the list of the admissions' id
      */
-    public ArrayList<Long> findAdmissionHavingDiseases(ArrayList<String> diseaseEntities) {
-        int numOfDiseases = diseaseEntities.size();
-        String getAdmissionIdCypher = "MATCH (a)-[]-(d0)";
-        for (int i = 1; i < numOfDiseases; i++) {
-            getAdmissionIdCypher += ", (a)-[]-(d" + Integer.toString(i) + ")";
-        }
-        getAdmissionIdCypher += " WHERE d0.alias = '" + diseaseEntities.get(0) + "'";
-        for (int i = 1; i < numOfDiseases; i++) {
-            getAdmissionIdCypher += " and d" + Integer.toString(i) + ".alias = '" + diseaseEntities.get(i) + "'";
-        }
-        getAdmissionIdCypher += " and a.type = 'admission' RETURN id(a) LIMIT 10";
-
+    public Long findAdmissionWithId(String admissionId) {
+        String getAdmissionIdCypher = "MATCH (a:ADDSKGNode:kgId1) WHERE a.admission_id = '" + admissionId + "' RETURN id(a)";
         StatementResult result = executeCypher(getAdmissionIdCypher);
         if (result.hasNext()) {
-            List<Record> records = result.list();
-            ArrayList<Long> admissionIdList = new ArrayList<>();
-            for (int i = 0; i < records.size(); i++) {
-                admissionIdList.add(records.get(i).fields().get(0).value().asLong());
-            }
-            return admissionIdList;
+            return result.list().get(0).fields().get(0).value().asLong();
         } else {
             return null;
         }

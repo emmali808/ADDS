@@ -444,4 +444,28 @@ public class FileUtil {
         }
         return lines;
     }
+
+    /**
+     * Write List of Strings into a File
+     * @param filePath the path of the file to write
+     * @param lines the list of the strings to write
+     * @return successfully write the file or not
+     * @author XYX
+     */
+    public Boolean writeListIntoFile(String filePath, ArrayList<String> lines)
+    {
+        try {
+            File file = new File(filePath);
+            file.createNewFile();
+            FileWriter fileWriter = new FileWriter(filePath);
+            for (String line : lines) {
+                fileWriter.write(line + "\n");
+            }
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }

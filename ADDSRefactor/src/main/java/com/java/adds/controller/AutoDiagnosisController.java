@@ -43,7 +43,7 @@ public class AutoDiagnosisController {
      * Get Similar Graphs From The Given KG
      */
     @RequestMapping(value = "/{kdId}", method = RequestMethod.GET)
-    public ArrayList<Long> getSimilarGraphs(@PathVariable Long kdId) {
+    public ArrayList<String> getSimilarGraphs(@PathVariable Long kdId) {
         return autoDiagnosisService.searchForSimilarGraphs(kdId);
     }
 

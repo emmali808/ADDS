@@ -61,10 +61,10 @@
                 {value:2, label: "Yadi Li"}
               ]
           }],
-          characterChosen: '',
-          characterImgPath: 'doctor.png',
-          characterName: 'Yadi Li',
-          characterIntro: 'Yadi Li is currently an attending doctor in the department of dermatology, Beijing Tongren hospital. She received her M.D. in dermatology from Capital Medical University in 2012. Her sub-specialties are skin cosmetic medicine and dermatology surgery.'
+          characterChosen: 'AI robot',
+          characterImgPath: 'robot.jpg',
+          characterName: 'AI robot',
+          characterIntro: 'AI robot automatically replies your questions.'
         }
       },
       methods: {
@@ -87,19 +87,15 @@
               url: '/consult/online',
               data: params
             }).then(res => {
-              clearTimeout(this.timer);
-              this.timer = setTimeout(()=>{   //设置延迟执行
-                outer_div = document.createElement('div');
-                outer_div.style = 'width: 100%; overflow: auto;';
-                div = document.createElement('div');
-                div.innerHTML = res.data;
-                div.style = 'border: 1px rgb(235, 237, 240) solid; border-radius: 5px; background-color: rgb(235, 237, 240); float: left; width: fit-content; padding: 6px 10px; margin: 5px; margin-right: 30px;';
-                outer_div.append(div);
-                document.getElementById("chat-history").append(outer_div);
-                setTimeout("testFunction(res)","2000");
-                document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
-            },1000);
-              
+              outer_div = document.createElement('div');
+              outer_div.style = 'width: 100%; overflow: auto;';
+              div = document.createElement('div');
+              div.innerHTML = res.data;
+              div.style = 'border: 1px rgb(235, 237, 240) solid; border-radius: 5px; background-color: rgb(235, 237, 240); float: left; width: fit-content; padding: 6px 10px; margin: 5px; margin-right: 30px;';
+              outer_div.append(div);
+              document.getElementById("chat-history").append(outer_div);
+              setTimeout("testFunction(res)","2000");
+              document.getElementById("chat-history-box").scrollTop = document.getElementById("chat-history").scrollHeight;
             }).catch(error => {
               console.log(error);
             });

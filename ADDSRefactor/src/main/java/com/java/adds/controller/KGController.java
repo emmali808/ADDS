@@ -43,8 +43,8 @@ public class KGController {
     }
 
     /**
-     * Author: QXL
-     * Get Knowledge-Graph by KG id by calculating central node
+     * Author: XYX
+     * Get Knowledge-Graph by KG Id
      */
     @RequestMapping(value = "/graph/{kgId}", method = RequestMethod.GET)
     public Map<String, Object> getKGById(@PathVariable("kgId") Long kgId) {
@@ -76,6 +76,7 @@ public class KGController {
     @RequestMapping(value = "/createGraph", method = RequestMethod.POST)
     public void createGraph() {
         kgService.createGraphSingular();
+        kgService.createGraphForSearch();
     }
 
     @RequestMapping(value = "/node/search/{node}", method = RequestMethod.GET)
