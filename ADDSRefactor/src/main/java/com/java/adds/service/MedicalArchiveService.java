@@ -17,9 +17,6 @@ public class MedicalArchiveService {
     @Autowired
     private MedicalArchiveDao medicalArchiveDao;
 
-    @Autowired
-    private OCRService ocrService;
-
     /**
      * Get Medical Archive By User's Id
      * @param userId user's id

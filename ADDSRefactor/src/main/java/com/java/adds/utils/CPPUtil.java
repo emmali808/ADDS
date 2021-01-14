@@ -20,7 +20,7 @@ public class CPPUtil {
     FileUtil fileUtil;
 
     /**
-     * run Python scripts
+     * run CPP exes
      * @author xyx
      * @return void
      */
