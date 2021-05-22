@@ -2,9 +2,10 @@ package com.java.adds.service;
 
 import com.java.adds.config.UploadFileConfig;
 import com.java.adds.dao.*;
-import com.java.adds.entity.*;
+import com.java.adds.entity.HistoryAdmssionEntity;
+import com.java.adds.entity.MedicalCaseEntity;
+import com.java.adds.entity.SimilarCasesEntity;
 import com.java.adds.mapper.HistoryAdmissionMapper;
-import com.java.adds.similarityMeasures.CosineSimilarity;
 import com.java.adds.utils.CPPUtil;
 import com.java.adds.utils.FileUtil;
 import lombok.extern.log4j.Log4j;
@@ -12,7 +13,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
