@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.adds.mapper.MedicalArchiveMapper">
+    <resultMap id="MedicalArchiveList" type="com.java.adds.entity.MedicalArchiveEntity">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="category" property="category"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="zip_file_path" property="zipFilePath"/>
+        <result column="txt_file_path" property="txtFilePath"/>
+    </resultMap>
+
+    <insert id="uploadMedicalArchiveByUserId" useGeneratedKeys="true" keyProperty="id" parameterType="com.java.adds.entity.MedicalArchiveEntity">
+        insert into medical_archive(user_id, title, category, description, status, zip_file_path)
+        values(#{userId}, #{title}, #{category}, #{description}, #{status}, #{zipFilePath})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select  last_insert_id()
+        </selectKey>
+    </insert>
+
+    <select id="getMedicalArchiveByUserId" resultMap="MedicalArchiveList">
+        select * from medical_archive where user_id=#{userId}
+    </select>
+
+    <update id="updateMedicalArchive" parameterType="com.java.adds.entity.MedicalArchiveEntity">
+        update medical_archive
+        set status=#{status}, txt_file_path=#{txtFilePath}
+        where id=#{id}
+    </update>
+
+    <select id="getMedicalArchiveById" resultMap="MedicalArchiveList">
+        select * from medical_archive where id=#{archiveId}
+    </select>
+</mapper>
