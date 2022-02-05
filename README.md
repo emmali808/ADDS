@@ -1,26 +1,77 @@
-# ADDS
+# VQA-Demo
 
-### Introduction
+**This is the open source code of our paper.** 
 
-We develop an intelligent medical analysis system, denoted by IMAS, to support medical practice based on concept graph. The system provides an efficient medical archives processing tool and supports effective medical data searching and analysis.
+[**PAPER LINK**](https://dl.acm.org/doi/10.1145/3459637.3481971).
 
-The system application is located in folder *ADDSRefactor* and sample data files are located in folder *DataFile*.
+#### Target
 
-### Launch Instruction
+We build a VQA application platform from dataset generation to model application.
 
-It is recommended to run the application in a Linux environment (18.04.1-Ubuntu is preferred). You need to first install supporting softwares on the Linux environment such as: MySQL (5.7.32 for Linux is preferred), Neo4j (community 3.5.22), Python (3.7.4), npm (7.0.8), Java IDE (IntelliJ IDEA), browser (Chrome).
+#### Video
 
-To run the application, first clone the whole project onto you own server. Then import the database file *Database.sql* from folder *DataFile* into a new database in your MySQL and launch MySQL. Modify the configuration file *application.properties* under */ADDSRefactor/src/resources* to your own MySQL and Neo4j config (e.g. host, username, password, database name). You also need to specify a folder for uploading files onto your server as *file.upload.path* in *application.properties*. Now you can import the system into an IDE and launch the backend of the application.
+We upload the recorded video, and users can learn how to use the system according to the [**videos**](https://github.com/shyanneshan/VQA-Demo/tree/master/video).
 
-To launch the frontend of the application, use console and navigate to */ADDSRefactor/frontend*. Use ``` npm install ``` to install required dependencies. Then use ``` npm run dev``` to launch the frontend.
+#### Module
 
-Put the graph data file *GraphData.txt* from folder *DataFile* under your path for *file.upload.path*. (More graph data need to be processed to remove the sensitive data before they can be released) Launch the Neo4j database. Launch your browser and locate to http://localhost:8081/#/devPage and click the button. The system will start importing the graph datafile into the database.
+The demo has the following modules.
 
-Our system uses Baidu's API for OCR recognition. In order to use this function, you need to create an account and OCR application in https://ai.baidu.com/tech/ocr/. Generate your own access token for that in */ADDSRefactor/src/resources/python/ocr_to_txt.py*. 
+##### Dataset generation
 
-The AI robot for online consulting uses API for deep learning from https://github.com/emmali808/HQADeepHelper and codes for sementic computing from https://github.com/fgaim/biosses.
+Upload the ZIP file of the medical record and build the dataset.
 
-### License
+![](pic/dataset1.png)
 
-The application is licensed under the GPL v3.
+![](pic/dataset2.png)
+
+##### Label
+
+Label by patient id and picture id.
+
+![](pic/label1.png)
+
+![](pic/label2.png)
+
+##### Model training
+
+![](pic/practice.png)
+
+Medical VQA model is provided, and users can select parameter annotation. (For the time being, there are only three models: NLM, VGG-Seq2Seq, MMbert, and models will be introduced in the future.)
+
+##### Model application
+
+After the training, the model score report is provided and the model effect can be tested on the AI Robot interface.
+
+![](pic/report.png)
+
+![](pic/ai.png)
+
+#### The environment
+
+> Ubuntu 20.04
+>
+> mysql 8.0.25
+>
+> jdk 1.8
+>
+> Vue
+
+#### Build
+
+**How to run frontend?**
+
+The front files are in the [**fronted folder.**](https://github.com/shyanneshan/VQA-Demo/tree/master/fronted)
+
+```
+npm install
+npm run dev
+```
+
+**How to run backend?**
+The back-end code is in the [**demo folder.**](https://github.com/shyanneshan/VQA-Demo/tree/master/demo)
+
+**Configuration**
+
+The sql file is in the [resources](https://github.com/shyanneshan/VQA-Demo/tree/master/demo/src/main/resources). We only provide several pieces of records for illustration.
+We've created three new Python environments. Python environments are provided by [requirements](https://github.com/shyanneshan/VQA-Demo/tree/master/demo/src/main/resources/python).
 
